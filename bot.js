@@ -3,6 +3,13 @@ const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const { initializeApp } = require('firebase/app');
 const { getDatabase, ref, get, set } = require('firebase/database');
 const { getAuth, signInAnonymously } = require('firebase/auth');
+const http = require('http');
+
+// Keep-alive server for Render.com
+http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Discord Bot is alive!');
+}).listen(process.env.PORT || 3000);
 
 // Firebase Setup
 const firebaseConfig = {
