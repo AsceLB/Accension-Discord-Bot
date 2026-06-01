@@ -145,7 +145,7 @@ const commands = [
                 )),
 
     new SlashCommandBuilder()
-        .setName('promoted')
+        .setName('promote')
         .setDescription('Promote a player and shift existing active players down.')
         .addStringOption(option => 
             option.setName('ign')
@@ -173,7 +173,7 @@ const commands = [
                 .setMaxValue(5)),
                 
     new SlashCommandBuilder()
-        .setName('demoted')
+        .setName('demote')
         .setDescription('Demote a player and shift existing active players up.')
         .addStringOption(option => 
             option.setName('ign')

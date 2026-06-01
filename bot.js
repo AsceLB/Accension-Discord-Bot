@@ -209,7 +209,7 @@ client.on('interactionCreate', async interaction => {
         }
     }
 
-    if (commandName === 'promoted') {
+    if (commandName === 'promote') {
         const ign = options.getString('ign');
         const leaderboard = options.getString('leaderboard');
         const newRank = options.getInteger('rank');
@@ -262,7 +262,7 @@ client.on('interactionCreate', async interaction => {
         }
     }
 
-    if (commandName === 'demoted') {
+    if (commandName === 'demote') {
         const ign = options.getString('ign');
         const leaderboard = options.getString('leaderboard');
         const newRank = options.getInteger('rank');
