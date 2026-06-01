@@ -71,14 +71,14 @@ async function buildLeaderboardMessage() {
     players = players.filter(p => p && p.name && p.stats);
 
     const categories = [
-        { id: 'sword', name: 'Sword', color: '#004d40', thumb: 'https://minecraft.wiki/images/Diamond_Sword.png' },
-        { id: 'nethop', name: 'Netherite Potion', color: '#1a051d', thumb: 'https://minecraft.wiki/images/Netherite_Helmet.png' },
-        { id: 'pot', name: 'Potion', color: '#ff7f7f', thumb: 'https://minecraft.wiki/images/Potion_of_Healing.png' },
-        { id: 'uhc', name: 'UHC', color: '#cc0000', thumb: 'https://minecraft.wiki/images/Heart_%28Hardcore%29.png' },
-        { id: 'axe', name: 'Axe', color: '#c19a6b', thumb: 'https://minecraft.wiki/images/Diamond_Axe.png' },
-        { id: 'mace', name: 'Mace', color: '#7f96a3', thumb: 'https://minecraft.wiki/images/Mace.png' },
-        { id: 'vanilla', name: 'Vanilla', color: '#9b59b6', thumb: 'https://minecraft.wiki/images/Shield.png' },
-        { id: 'smp', name: 'SMP', color: '#0b666a', thumb: 'https://minecraft.wiki/images/Ender_Pearl.png' }
+        { id: 'sword', name: 'Sword', color: '#004d40', thumb: 'https://i.postimg.cc/fykPJYXN/sword.jpg' },
+        { id: 'nethop', name: 'Netherite Potion', color: '#1a051d', thumb: 'https://i.postimg.cc/28ZHMkxR/nethop.jpg' },
+        { id: 'pot', name: 'Potion', color: '#ff7f7f', thumb: 'https://i.postimg.cc/prgsr4RB/pot.jpg' },
+        { id: 'uhc', name: 'UHC', color: '#cc0000', thumb: 'https://i.postimg.cc/RFps5qYp/uhc.jpg' },
+        { id: 'axe', name: 'Axe', color: '#c19a6b', thumb: 'https://i.postimg.cc/ZYDgXDtT/axe.jpg' },
+        { id: 'mace', name: 'Mace', color: '#7f96a3', thumb: 'https://i.postimg.cc/wTCrjyjZ/mace.jpg' },
+        { id: 'vanilla', name: 'Vanilla', color: '#9b59b6', thumb: 'https://i.postimg.cc/YCQsGr4V/vanilla.jpg' },
+        { id: 'smp', name: 'SMP', color: '#0b666a', thumb: 'https://i.postimg.cc/Jz3p7pgP/smp.jpg' }
     ];
 
     const embeds = [];
