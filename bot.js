@@ -71,14 +71,14 @@ async function buildLeaderboardMessage() {
     players = players.filter(p => p && p.name && p.stats);
 
     const categories = [
-        { id: 'sword', name: 'Sword', color: '#004d40', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/diamond_sword.png' },
-        { id: 'nethop', name: 'Netherite Potion', color: '#1a051d', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/netherite_chestplate.png' },
-        { id: 'pot', name: 'Potion', color: '#ff7f7f', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/potion.png' },
-        { id: 'uhc', name: 'UHC', color: '#cc0000', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/golden_apple.png' },
-        { id: 'axe', name: 'Axe', color: '#c19a6b', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/diamond_axe.png' },
-        { id: 'mace', name: 'Mace', color: '#7f96a3', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/iron_sword.png' },
-        { id: 'vanilla', name: 'Vanilla', color: '#9b59b6', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/shield.png' },
-        { id: 'smp', name: 'SMP', color: '#0b666a', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/ender_pearl.png' }
+        { id: 'sword', name: 'Sword', color: '#004d40', thumb: 'https://raw.githubusercontent.com/AscensionLeaderboard/Accension-Discord-Bot/main/icons/sword.png' },
+        { id: 'nethop', name: 'Netherite Potion', color: '#1a051d', thumb: 'https://raw.githubusercontent.com/AscensionLeaderboard/Accension-Discord-Bot/main/icons/nethop.png' },
+        { id: 'pot', name: 'Potion', color: '#ff7f7f', thumb: 'https://raw.githubusercontent.com/AscensionLeaderboard/Accension-Discord-Bot/main/icons/pot.png' },
+        { id: 'uhc', name: 'UHC', color: '#cc0000', thumb: 'https://raw.githubusercontent.com/AscensionLeaderboard/Accension-Discord-Bot/main/icons/uhc.png' },
+        { id: 'axe', name: 'Axe', color: '#c19a6b', thumb: 'https://raw.githubusercontent.com/AscensionLeaderboard/Accension-Discord-Bot/main/icons/axe.png' },
+        { id: 'mace', name: 'Mace', color: '#7f96a3', thumb: 'https://raw.githubusercontent.com/AscensionLeaderboard/Accension-Discord-Bot/main/icons/mace.png' },
+        { id: 'vanilla', name: 'Vanilla', color: '#9b59b6', thumb: 'https://raw.githubusercontent.com/AscensionLeaderboard/Accension-Discord-Bot/main/icons/vanilla.png' },
+        { id: 'smp', name: 'SMP', color: '#0b666a', thumb: 'https://raw.githubusercontent.com/AscensionLeaderboard/Accension-Discord-Bot/main/icons/smp.png' }
     ];
 
     const embeds = [];
