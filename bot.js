@@ -71,14 +71,14 @@ async function buildLeaderboardMessage() {
     players = players.filter(p => p && p.name && p.stats);
 
     const categories = [
-        { id: 'sword', name: 'Sword', color: '#004d40', thumb: 'https://i.postimg.cc/fykPJYXN/sword.jpg' },
-        { id: 'nethop', name: 'Netherite Potion', color: '#1a051d', thumb: 'https://i.postimg.cc/28ZHMkxR/nethop.jpg' },
-        { id: 'pot', name: 'Potion', color: '#ff7f7f', thumb: 'https://i.postimg.cc/prgsr4RB/pot.jpg' },
-        { id: 'uhc', name: 'UHC', color: '#cc0000', thumb: 'https://i.postimg.cc/RFps5qYp/uhc.jpg' },
-        { id: 'axe', name: 'Axe', color: '#c19a6b', thumb: 'https://i.postimg.cc/ZYDgXDtT/axe.jpg' },
-        { id: 'mace', name: 'Mace', color: '#7f96a3', thumb: 'https://i.postimg.cc/wTCrjyjZ/mace.jpg' },
-        { id: 'vanilla', name: 'Vanilla', color: '#9b59b6', thumb: 'https://i.postimg.cc/YCQsGr4V/vanilla.jpg' },
-        { id: 'smp', name: 'SMP', color: '#0b666a', thumb: 'https://i.postimg.cc/Jz3p7pgP/smp.jpg' }
+        { id: 'sword', name: 'Sword', color: '#004d40', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/diamond_sword.png' },
+        { id: 'nethop', name: 'Netherite Potion', color: '#1a051d', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/netherite_chestplate.png' },
+        { id: 'pot', name: 'Potion', color: '#ff7f7f', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/potion.png' },
+        { id: 'uhc', name: 'UHC', color: '#cc0000', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/golden_apple.png' },
+        { id: 'axe', name: 'Axe', color: '#c19a6b', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/diamond_axe.png' },
+        { id: 'mace', name: 'Mace', color: '#7f96a3', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/iron_sword.png' },
+        { id: 'vanilla', name: 'Vanilla', color: '#9b59b6', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/shield.png' },
+        { id: 'smp', name: 'SMP', color: '#0b666a', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/ender_pearl.png' }
     ];
 
     const embeds = [];
