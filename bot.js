@@ -395,6 +395,40 @@ client.on('interactionCreate', async interaction => {
 
         await interaction.editReply({ content: '', embeds: [resultEmbed] });
     }
+    if (commandName === 'changeregion') {
+        const player = options.getString('player');
+        const region = options.getString('region').toUpperCase();
+
+        await interaction.deferReply();
+        try {
+            const playersRef = ref(db, 'players');
+            const snapshot = await get(playersRef);
+            if (!snapshot.exists()) {
+                return interaction.editReply('❌ Database is empty.');
+            }
+
+            let players = snapshot.val();
+            players = Array.isArray(players) ? players : Object.values(players);
+            players = players.filter(p => p && p.name && p.stats);
+
+            let playerIndex = players.findIndex(p => p.name.toLowerCase() === player.toLowerCase());
+            if (playerIndex !== -1) {
+                const oldRegion = players[playerIndex].region || 'AS';
+                players[playerIndex].region = region;
+                await set(playersRef, players);
+                
+                const embed = new EmbedBuilder()
+                    .setColor('#3498DB')
+                    .setTitle('🌍 Region Changed')
+                    .setDescription(`**${players[playerIndex].name}**'s region was changed from **${oldRegion}** to **${region}**.`);
+                interaction.editReply({ content: '', embeds: [embed] });
+            } else {
+                interaction.editReply(`⚠️ **${player}** not found in the database.`);
+            }
+        } catch (error) {
+            interaction.editReply('❌ Database error.');
+        }
+    }
 });
 
 client.login(process.env.DISCORD_TOKEN);

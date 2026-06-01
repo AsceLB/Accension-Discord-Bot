@@ -198,7 +198,19 @@ const commands = [
                 .setDescription('New rank (e.g., 3)')
                 .setRequired(true)
                 .setMinValue(1)
-                .setMaxValue(5))
+                .setMaxValue(5)),
+                
+    new SlashCommandBuilder()
+        .setName('changeregion')
+        .setDescription('Change the region of a player')
+        .addStringOption(option => 
+            option.setName('player')
+                .setDescription('The IGN of the player')
+                .setRequired(true))
+        .addStringOption(option => 
+            option.setName('region')
+                .setDescription('The new region (e.g., AS, EU, NA)')
+                .setRequired(true))
 ].map(command => command.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
