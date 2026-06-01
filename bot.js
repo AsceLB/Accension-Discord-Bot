@@ -59,8 +59,8 @@ function getPlayerTotalPoints(player) {
     return total;
 }
 
-// Function to build leaderboard Embed and Components
-async function buildLeaderboardMessage(category) {
+// Function to build multiple leaderboard Embeds
+async function buildLeaderboardMessage() {
     const playersRef = ref(db, 'players');
     const snapshot = await get(playersRef);
     let players = [];
@@ -70,90 +70,46 @@ async function buildLeaderboardMessage(category) {
     }
     players = players.filter(p => p && p.name && p.stats);
 
-    let sortedPlayers = [];
-    
-    if (category === 'overall') {
-        sortedPlayers = players.filter(p => {
-            const pts = getPlayerTotalPoints(p);
-            return pts > 0 || (p.stats.overall && typeof p.stats.overall === 'number');
-        }).sort((a, b) => {
-            return getPlayerTotalPoints(b) - getPlayerTotalPoints(a);
-        });
-    } else {
-        sortedPlayers = players.filter(p => typeof p.stats[category] === 'number')
-            .sort((a, b) => a.stats[category] - b.stats[category]);
-    }
+    const categories = [
+        { id: 'sword', name: 'Sword', color: '#1ABC9C', thumb: 'https://i.postimg.cc/k471JtB6/sword.png' },
+        { id: 'nethop', name: 'Netherite Potion', color: '#2C3E50', thumb: 'https://i.postimg.cc/jS3QZgQh/nethpot.png' },
+        { id: 'pot', name: 'Potion', color: '#E74C3C', thumb: 'https://i.postimg.cc/T34w98xZ/pot.png' },
+        { id: 'uhc', name: 'Crystal (UHC)', color: '#9B59B6', thumb: 'https://i.postimg.cc/bJZv2N1V/uhc.png' },
+        { id: 'axe', name: 'Axe', color: '#E67E22', thumb: 'https://i.postimg.cc/QdnmCdfH/axe.png' },
+        { id: 'mace', name: 'Mace', color: '#95A5A6', thumb: 'https://i.postimg.cc/wMs059T2/mace.png' },
+        { id: 'vanilla', name: 'Vanilla', color: '#2ECC71', thumb: 'https://i.postimg.cc/Z5f0wX2p/vanilla.png' },
+        { id: 'smp', name: 'SMP', color: '#3498DB', thumb: 'https://i.postimg.cc/sXhM3Q9g/smp.png' }
+    ];
 
-    const top5 = sortedPlayers.slice(0, 5);
+    const embeds = [];
 
-    const embed = new EmbedBuilder()
-        .setColor('#F1C40F')
-        .setTitle(`🏆 Accension Leaderboard - ${category.toUpperCase()}`)
-        .setDescription(`Top 5 Players in **${category.toUpperCase()}**`)
-        .setFooter({ text: 'Accension Bot • Real-time Data' })
-        .setTimestamp();
+    for (const cat of categories) {
+        let sortedPlayers = players
+            .filter(p => typeof p.stats[cat.id] === 'number')
+            .sort((a, b) => a.stats[cat.id] - b.stats[cat.id]);
 
-    if (top5.length === 0) {
-        embed.addFields({ name: 'No Data', value: 'No players found for this category yet.' });
-    } else {
-        const medals = ['🥇', '🥈', '🥉', '🏅', '🏅'];
-        top5.forEach((p, index) => {
-            let rank = index + 1;
-            if (category !== 'overall') {
-                rank = p.stats[category];
-            }
-            const pts = getPlayerTotalPoints(p);
-            const title = getTitle(pts);
-            
-            let val = `**Region:** ${p.region || 'AS'} | **Title:** ${title}`;
-            if (category === 'overall') {
-                val += `\n**Total Points:** ${pts}`;
+        const embed = new EmbedBuilder()
+            .setColor(cat.color)
+            .setTitle(cat.name)
+            .setThumbnail(cat.thumb);
+
+        let desc = '';
+        for (let i = 1; i <= 5; i++) {
+            const player = sortedPlayers.find(p => p.stats[cat.id] === i);
+            if (player) {
+                desc += `- **#${i}** ${player.name}\n`;
             } else {
-                val += `\n**Total Points:** ${pts}`;
+                desc += `- **#${i}** N/A\n`;
             }
-            
-            embed.addFields({
-                name: `${medals[index]} #${rank} - ${p.name}`,
-                value: val
-            });
-        });
+        }
+        embed.setDescription(desc);
+        embeds.push(embed);
     }
-
-    const selectMenu = new StringSelectMenuBuilder()
-        .setCustomId('lb_select')
-        .setPlaceholder('Select Leaderboard Category...')
-        .addOptions(
-            new StringSelectMenuOptionBuilder().setLabel('Overall').setValue('overall').setEmoji('🏆'),
-            new StringSelectMenuOptionBuilder().setLabel('Sword').setValue('sword').setEmoji('⚔️'),
-            new StringSelectMenuOptionBuilder().setLabel('Axe').setValue('axe').setEmoji('🪓'),
-            new StringSelectMenuOptionBuilder().setLabel('Mace').setValue('mace').setEmoji('🔨'),
-            new StringSelectMenuOptionBuilder().setLabel('UHC').setValue('uhc').setEmoji('🍎'),
-            new StringSelectMenuOptionBuilder().setLabel('Vanilla').setValue('vanilla').setEmoji('🛡️'),
-            new StringSelectMenuOptionBuilder().setLabel('Pot').setValue('pot').setEmoji('🧪'),
-            new StringSelectMenuOptionBuilder().setLabel('Nethpot').setValue('nethop').setEmoji('🔥'),
-            new StringSelectMenuOptionBuilder().setLabel('SMP').setValue('smp').setEmoji('🌍')
-        );
-
-    const row = new ActionRowBuilder().addComponents(selectMenu);
     
-    return { embeds: [embed], components: [row] };
+    return { content: '🏆 **Leaderboard Of Ascension** 🏆', embeds: embeds, components: [] };
 }
 
 client.on('interactionCreate', async interaction => {
-    if (interaction.isStringSelectMenu()) {
-        if (interaction.customId === 'lb_select') {
-            await interaction.deferUpdate();
-            const category = interaction.values[0];
-            try {
-                const messagePayload = await buildLeaderboardMessage(category);
-                await interaction.editReply(messagePayload);
-            } catch (error) {
-                console.error(error);
-                await interaction.followUp({ content: '❌ Error updating leaderboard.', ephemeral: true });
-            }
-        }
-        return;
-    }
 
     if (!interaction.isChatInputCommand()) return;
 
