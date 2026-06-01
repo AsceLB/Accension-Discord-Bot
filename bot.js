@@ -122,8 +122,8 @@ client.on('interactionCreate', async interaction => {
     const ADMIN_IDS = ['760539503211053057', '1406613103499677746', '1243137908613840958'];
     const { commandName, options } = interaction;
 
-    // /leaderboard is public, all other commands require admin
-    if (commandName !== 'leaderboard' && !ADMIN_IDS.includes(interaction.user.id)) {
+    // All commands require admin
+    if (!ADMIN_IDS.includes(interaction.user.id)) {
         return interaction.reply({ content: '❌ Bạn không có quyền sử dụng lệnh này.', ephemeral: true });
     }
 
