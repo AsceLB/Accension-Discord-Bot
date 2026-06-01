@@ -71,14 +71,14 @@ async function buildLeaderboardMessage() {
     players = players.filter(p => p && p.name && p.stats);
 
     const categories = [
-        { id: 'sword', name: 'Sword', color: '#1ABC9C', thumb: 'https://i.postimg.cc/k471JtB6/sword.png' },
-        { id: 'nethop', name: 'Netherite Potion', color: '#2C3E50', thumb: 'https://i.postimg.cc/jS3QZgQh/nethpot.png' },
-        { id: 'pot', name: 'Potion', color: '#E74C3C', thumb: 'https://i.postimg.cc/T34w98xZ/pot.png' },
-        { id: 'uhc', name: 'Crystal (UHC)', color: '#9B59B6', thumb: 'https://i.postimg.cc/bJZv2N1V/uhc.png' },
-        { id: 'axe', name: 'Axe', color: '#E67E22', thumb: 'https://i.postimg.cc/QdnmCdfH/axe.png' },
-        { id: 'mace', name: 'Mace', color: '#95A5A6', thumb: 'https://i.postimg.cc/wMs059T2/mace.png' },
-        { id: 'vanilla', name: 'Vanilla', color: '#2ECC71', thumb: 'https://i.postimg.cc/Z5f0wX2p/vanilla.png' },
-        { id: 'smp', name: 'SMP', color: '#3498DB', thumb: 'https://i.postimg.cc/sXhM3Q9g/smp.png' }
+        { id: 'sword', name: 'Sword', color: '#1ABC9C', thumb: 'https://minecraft.wiki/images/Diamond_Sword.png' },
+        { id: 'nethop', name: 'Netherite Potion', color: '#2C3E50', thumb: 'https://minecraft.wiki/images/Netherite_Helmet.png' },
+        { id: 'pot', name: 'Potion', color: '#E74C3C', thumb: 'https://minecraft.wiki/images/Potion_of_Healing.png' },
+        { id: 'uhc', name: 'UHC', color: '#9B59B6', thumb: 'https://minecraft.wiki/images/End_Crystal.png' },
+        { id: 'axe', name: 'Axe', color: '#E67E22', thumb: 'https://minecraft.wiki/images/Diamond_Axe.png' },
+        { id: 'mace', name: 'Mace', color: '#95A5A6', thumb: 'https://minecraft.wiki/images/Mace.png' },
+        { id: 'vanilla', name: 'Vanilla', color: '#2ECC71', thumb: 'https://minecraft.wiki/images/Shield.png' },
+        { id: 'smp', name: 'SMP', color: '#3498DB', thumb: 'https://minecraft.wiki/images/Ender_Pearl.png' }
     ];
 
     const embeds = [];
@@ -99,7 +99,7 @@ async function buildLeaderboardMessage() {
             if (player) {
                 desc += `- **#${i}** **${player.name}**\n`;
             } else {
-                desc += `- **#${i}** N/A\n`;
+                desc += `- **#${i}** **N/A**\n`;
             }
         }
         embed.setDescription(desc);
