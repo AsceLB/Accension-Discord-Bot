@@ -1,5 +1,6 @@
 require('dotenv').config();
-const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, AttachmentBuilder } = require('discord.js');
+const path = require('path');
 const { initializeApp } = require('firebase/app');
 const { getDatabase, ref, get, set } = require('firebase/database');
 const { getAuth, signInAnonymously } = require('firebase/auth');
@@ -71,27 +72,32 @@ async function buildLeaderboardMessage() {
     players = players.filter(p => p && p.name && p.stats);
 
     const categories = [
-        { id: 'sword', name: 'Sword', color: '#55FFFF', thumb: 'https://i.postimg.cc/3w0yMRbc/7286831720.png' },
-        { id: 'nethop', name: 'Netherite Potion', color: '#1a051d', thumb: 'https://i.postimg.cc/zvFbdcPL/6284938720.png' },
-        { id: 'pot', name: 'Potion', color: '#ff7f7f', thumb: 'https://i.postimg.cc/kXPvTrDJ/2157956720.png' },
-        { id: 'uhc', name: 'UHC', color: '#cc0000', thumb: 'https://i.postimg.cc/j2tCJhdL/7971572720.png' },
-        { id: 'axe', name: 'Axe', color: '#c19a6b', thumb: 'https://i.postimg.cc/vmKW9kps/3359126720.png' },
-        { id: 'mace', name: 'Mace', color: '#7f96a3', thumb: 'https://i.postimg.cc/qRdv9GKL/9333692720.png' },
-        { id: 'vanilla', name: 'Vanilla', color: '#9b59b6', thumb: 'https://i.postimg.cc/yNDRVnWb/4942142720.png' },
-        { id: 'smp', name: 'SMP', color: '#0b666a', thumb: 'https://i.postimg.cc/FsP173tF/8685573720.png' }
+        { id: 'sword', name: 'Sword', color: '#55FFFF', icon: 'sword.png' },
+        { id: 'nethop', name: 'Netherite Potion', color: '#1a051d', icon: 'nethop.png' },
+        { id: 'pot', name: 'Potion', color: '#ff7f7f', icon: 'pot.png' },
+        { id: 'uhc', name: 'UHC', color: '#cc0000', icon: 'uhc.png' },
+        { id: 'axe', name: 'Axe', color: '#c19a6b', icon: 'axe.png' },
+        { id: 'mace', name: 'Mace', color: '#7f96a3', icon: 'mace.png' },
+        { id: 'vanilla', name: 'Vanilla', color: '#9b59b6', icon: 'vanilla.png' },
+        { id: 'smp', name: 'SMP', color: '#0b666a', icon: 'smp.png' }
     ];
 
     const embeds = [];
+    const files = [];
 
     for (const cat of categories) {
         let sortedPlayers = players
             .filter(p => typeof p.stats[cat.id] === 'number')
             .sort((a, b) => a.stats[cat.id] - b.stats[cat.id]);
 
+        const iconPath = path.join(__dirname, 'icons', cat.icon);
+        const attachment = new AttachmentBuilder(iconPath, { name: cat.icon });
+        files.push(attachment);
+
         const embed = new EmbedBuilder()
             .setColor(cat.color)
             .setTitle(cat.name)
-            .setThumbnail(cat.thumb);
+            .setThumbnail(`attachment://${cat.icon}`);
 
         let desc = '';
         for (let i = 1; i <= 5; i++) {
@@ -106,7 +112,7 @@ async function buildLeaderboardMessage() {
         embeds.push(embed);
     }
     
-    return { content: '🏆 **Leaderboard Of Ascension** 🏆', embeds: embeds, components: [] };
+    return { content: '🏆 **Leaderboard Of Ascension** 🏆', embeds: embeds, files: files, components: [] };
 }
 
 client.on('interactionCreate', async interaction => {
