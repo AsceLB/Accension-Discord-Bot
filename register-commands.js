@@ -226,7 +226,7 @@ const commands = [
                 
     new SlashCommandBuilder()
         .setName('leaderboard')
-        .setDescription('View the interactive interactive leaderboard')
+        .setDescription('View the interactive leaderboard')
 
 ].map(command => command.toJSON());
 

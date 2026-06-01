@@ -5,6 +5,9 @@ const { getDatabase, ref, get, set } = require('firebase/database');
 const { getAuth, signInAnonymously } = require('firebase/auth');
 const http = require('http');
 
+// Auto-register slash commands on startup
+require('./register-commands.js');
+
 // Keep-alive server for Render.com
 http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
