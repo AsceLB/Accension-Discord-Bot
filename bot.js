@@ -57,25 +57,27 @@ client.on('interactionCreate', async interaction => {
                 players = players.filter(p => p && p.name && p.stats);
             }
 
-            // Tìm player xem đã có chưa
             let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
+            let oldRank = (playerIndex !== -1 && typeof players[playerIndex].stats[leaderboard] === 'number') 
+                          ? players[playerIndex].stats[leaderboard] : 999;
             
-            if (playerIndex !== -1) {
-                // Cập nhật người chơi đã có
-                players[playerIndex].stats[leaderboard] = position;
-                // Nếu họ nhập region mới thì cập nhật luôn
-                if (options.getString('region')) {
-                    players[playerIndex].region = region;
+            players.forEach(p => {
+                let r = p.stats[leaderboard];
+                if (typeof r === 'number') {
+                    if (r >= position && r < oldRank) {
+                        if (r < 5) p.stats[leaderboard] = r + 1;
+                        else delete p.stats[leaderboard];
+                    }
                 }
+            });
+            players = players.filter(p => Object.keys(p.stats).length > 0);
+            
+            playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
+            if (playerIndex !== -1) {
+                players[playerIndex].stats[leaderboard] = position;
+                if (options.getString('region')) players[playerIndex].region = region;
             } else {
-                // Thêm người chơi mới
-                let newPlayer = {
-                    name: ign, // Giữ nguyên case do user nhập
-                    region: region,
-                    stats: {}
-                };
-                newPlayer.stats[leaderboard] = position;
-                players.push(newPlayer);
+                players.push({ name: ign, region: region, stats: { [leaderboard]: position } });
             }
 
             await set(playersRef, players);
@@ -334,13 +336,37 @@ client.on('interactionCreate', async interaction => {
                 }
                 
                 let playerIndex = players.findIndex(p => p.name.toLowerCase() === player.toLowerCase());
+                let oldRank = (playerIndex !== -1 && typeof players[playerIndex].stats[leaderboard] === 'number') 
+                              ? players[playerIndex].stats[leaderboard] : 999;
+                
+                if (status.includes('Promoted') || oldRank === 999) {
+                    players.forEach(p => {
+                        let r = p.stats[leaderboard];
+                        if (typeof r === 'number') {
+                            if (r >= rank && r < oldRank) {
+                                if (r < 5) p.stats[leaderboard] = r + 1;
+                                else delete p.stats[leaderboard];
+                            }
+                        }
+                    });
+                } else if (status.includes('Demoted')) {
+                    players.forEach(p => {
+                        let r = p.stats[leaderboard];
+                        if (typeof r === 'number') {
+                            if (r > oldRank && r <= rank) {
+                                p.stats[leaderboard] = r - 1;
+                            }
+                        }
+                    });
+                }
+                players = players.filter(p => Object.keys(p.stats).length > 0);
+                
+                playerIndex = players.findIndex(p => p.name.toLowerCase() === player.toLowerCase());
                 if (playerIndex !== -1) {
                     players[playerIndex].stats[leaderboard] = rank;
                     if (region) players[playerIndex].region = region;
                 } else {
-                    let newPlayer = { name: player, region: region, stats: {} };
-                    newPlayer.stats[leaderboard] = rank;
-                    players.push(newPlayer);
+                    players.push({ name: player, region: region, stats: { [leaderboard]: rank } });
                 }
                 await set(playersRef, players);
             }
