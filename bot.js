@@ -429,6 +429,46 @@ client.on('interactionCreate', async interaction => {
             interaction.editReply('❌ Database error.');
         }
     }
+    if (commandName === 'changename') {
+        const oldName = options.getString('oldname');
+        const newName = options.getString('newname');
+
+        await interaction.deferReply();
+        try {
+            const playersRef = ref(db, 'players');
+            const snapshot = await get(playersRef);
+            if (!snapshot.exists()) {
+                return interaction.editReply('❌ Database is empty.');
+            }
+
+            let players = snapshot.val();
+            players = Array.isArray(players) ? players : Object.values(players);
+            players = players.filter(p => p && p.name && p.stats);
+
+            let playerIndex = players.findIndex(p => p.name.toLowerCase() === oldName.toLowerCase());
+            let newNameExists = players.some(p => p.name.toLowerCase() === newName.toLowerCase());
+            
+            if (newNameExists) {
+                return interaction.editReply(`⚠️ Player **${newName}** already exists in the database.`);
+            }
+
+            if (playerIndex !== -1) {
+                const actualOldName = players[playerIndex].name;
+                players[playerIndex].name = newName;
+                await set(playersRef, players);
+                
+                const embed = new EmbedBuilder()
+                    .setColor('#9B59B6')
+                    .setTitle('✏️ Name Changed')
+                    .setDescription(`Player **${actualOldName}** has been renamed to **${newName}**.`);
+                interaction.editReply({ content: '', embeds: [embed] });
+            } else {
+                interaction.editReply(`⚠️ **${oldName}** not found in the database.`);
+            }
+        } catch (error) {
+            interaction.editReply('❌ Database error.');
+        }
+    }
 });
 
 client.login(process.env.DISCORD_TOKEN);

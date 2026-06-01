@@ -210,6 +210,18 @@ const commands = [
         .addStringOption(option => 
             option.setName('region')
                 .setDescription('The new region (e.g., AS, EU, NA)')
+                .setRequired(true)),
+                
+    new SlashCommandBuilder()
+        .setName('changename')
+        .setDescription('Change the IGN of a player')
+        .addStringOption(option => 
+            option.setName('oldname')
+                .setDescription('The current IGN of the player')
+                .setRequired(true))
+        .addStringOption(option => 
+            option.setName('newname')
+                .setDescription('The new IGN of the player')
                 .setRequired(true))
 ].map(command => command.toJSON());
 
