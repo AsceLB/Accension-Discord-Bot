@@ -128,9 +128,12 @@ client.on('interactionCreate', async interaction => {
             await set(playersRef, players);
             
             const delEmbed = new EmbedBuilder()
-                .setColor('#FF0000')
+                .setColor('#E74C3C')
+                .setAuthor({ name: 'Accension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                 .setTitle('🗑️ Player Deleted')
-                .setDescription(`Completely removed player **${ign}** from the Leaderboard!`)
+                .setDescription(`The player **\`${ign}\`** has been completely removed from all leaderboards.`)
+                .setThumbnail(`https://mc-heads.net/avatar/${ign}/200`)
+                .setFooter({ text: 'Accension Bot • System Update' })
                 .setTimestamp();
                 
             await interaction.editReply({ content: '', embeds: [delEmbed] });
@@ -313,9 +316,10 @@ client.on('interactionCreate', async interaction => {
 
         await interaction.deferReply();
 
-        let color = '#FFFF00'; // Maintained
-        if (status.includes('Promoted')) color = '#00FF00'; // Promoted
-        else if (status.includes('Demoted')) color = '#FF0000'; // Demoted
+        let embedColor = '#F1C40F'; // Maintained - Yellow
+        let statusEmoji = '➖';
+        if (status.includes('Promoted')) { embedColor = '#2ECC71'; statusEmoji = '📈'; }
+        else if (status.includes('Demoted')) { embedColor = '#E74C3C'; statusEmoji = '📉'; }
 
         // Update player in database if Promoted or Demoted
         try {
@@ -350,9 +354,17 @@ client.on('interactionCreate', async interaction => {
         const lbName = leaderboard.charAt(0).toUpperCase() + leaderboard.slice(1);
 
         const resultEmbed = new EmbedBuilder()
-            .setColor(color)
-            .setAuthor({ name: `@${player} | ${region}`, iconURL: avatarUrl })
-            .setDescription(`- **${player}** - ${status} **#${rank} ${lbName}**\n\n**Rank Fights:**\n> ${verb} ${resultText} vs ${opponent}`)
+            .setColor(embedColor)
+            .setAuthor({ name: 'Accension Rank Match', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+            .setTitle(`${statusEmoji} ${status} #${rank} ${lbName}`)
+            .setThumbnail(avatarUrl)
+            .addFields(
+                { name: 'Player', value: `**\`${player}\`**`, inline: true },
+                { name: 'Region', value: `**${region}**`, inline: true },
+                { name: '\u200b', value: '\u200b', inline: true },
+                { name: 'Match Result', value: `> **${verb}** ${resultText} vs **\`${opponent}\`**`, inline: false }
+            )
+            .setFooter({ text: 'Accension Bot • Match Update' })
             .setTimestamp();
 
         await interaction.editReply({ content: '', embeds: [resultEmbed] });
