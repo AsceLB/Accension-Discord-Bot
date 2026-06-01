@@ -95,7 +95,107 @@ const commands = [
         .addStringOption(option => 
             option.setName('region')
                 .setDescription('Region (e.g., AS)')
-                .setRequired(false))
+                .setRequired(false)),
+                
+    new SlashCommandBuilder()
+        .setName('removerank')
+        .setDescription('Remove a specific rank from a player.')
+        .addStringOption(option => 
+            option.setName('ign')
+                .setDescription('The IGN to update')
+                .setRequired(true))
+        .addStringOption(option => 
+            option.setName('leaderboard')
+                .setDescription('Select Leaderboard')
+                .setRequired(true)
+                .addChoices(
+                    { name: 'Sword', value: 'sword' },
+                    { name: 'Axe', value: 'axe' },
+                    { name: 'Mace', value: 'mace' },
+                    { name: 'Crystal', value: 'crystal' },
+                    { name: 'UHC', value: 'uhc' },
+                    { name: 'Vanilla', value: 'vanilla' },
+                    { name: 'Pot', value: 'pot' },
+                    { name: 'Nethpot', value: 'nethop' },
+                    { name: 'SMP', value: 'smp' }
+                )),
+                
+    new SlashCommandBuilder()
+        .setName('retire')
+        .setDescription('Mark a player\'s rank as Retired (r#X).')
+        .addStringOption(option => 
+            option.setName('ign')
+                .setDescription('The IGN to update')
+                .setRequired(true))
+        .addStringOption(option => 
+            option.setName('leaderboard')
+                .setDescription('Select Leaderboard')
+                .setRequired(true)
+                .addChoices(
+                    { name: 'Sword', value: 'sword' },
+                    { name: 'Axe', value: 'axe' },
+                    { name: 'Mace', value: 'mace' },
+                    { name: 'Crystal', value: 'crystal' },
+                    { name: 'UHC', value: 'uhc' },
+                    { name: 'Vanilla', value: 'vanilla' },
+                    { name: 'Pot', value: 'pot' },
+                    { name: 'Nethpot', value: 'nethop' },
+                    { name: 'SMP', value: 'smp' }
+                )),
+
+    new SlashCommandBuilder()
+        .setName('promoted')
+        .setDescription('Promote a player and shift existing active players down.')
+        .addStringOption(option => 
+            option.setName('ign')
+                .setDescription('The IGN to promote')
+                .setRequired(true))
+        .addStringOption(option => 
+            option.setName('leaderboard')
+                .setDescription('Select Leaderboard')
+                .setRequired(true)
+                .addChoices(
+                    { name: 'Sword', value: 'sword' },
+                    { name: 'Axe', value: 'axe' },
+                    { name: 'Mace', value: 'mace' },
+                    { name: 'Crystal', value: 'crystal' },
+                    { name: 'UHC', value: 'uhc' },
+                    { name: 'Vanilla', value: 'vanilla' },
+                    { name: 'Pot', value: 'pot' },
+                    { name: 'Nethpot', value: 'nethop' },
+                    { name: 'SMP', value: 'smp' }
+                ))
+        .addIntegerOption(option => 
+            option.setName('rank')
+                .setDescription('New rank achieved (e.g., 1)')
+                .setRequired(true)),
+                
+    new SlashCommandBuilder()
+        .setName('demoted')
+        .setDescription('Demote a player and shift existing active players up.')
+        .addStringOption(option => 
+            option.setName('ign')
+                .setDescription('The IGN to demote')
+                .setRequired(true))
+        .addStringOption(option => 
+            option.setName('leaderboard')
+                .setDescription('Select Leaderboard')
+                .setRequired(true)
+                .addChoices(
+                    { name: 'Sword', value: 'sword' },
+                    { name: 'Axe', value: 'axe' },
+                    { name: 'Mace', value: 'mace' },
+                    { name: 'Crystal', value: 'crystal' },
+                    { name: 'UHC', value: 'uhc' },
+                    { name: 'Vanilla', value: 'vanilla' },
+                    { name: 'Pot', value: 'pot' },
+                    { name: 'Nethpot', value: 'nethop' },
+                    { name: 'SMP', value: 'smp' }
+                ))
+        .addIntegerOption(option => 
+            option.setName('rank')
+                .setDescription('New rank (e.g., 3)')
+                .setRequired(true))
 ].map(command => command.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);

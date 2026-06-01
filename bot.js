@@ -140,7 +140,167 @@ client.on('interactionCreate', async interaction => {
             await interaction.editReply('❌ Error deleting from Database.');
         }
     }
+    if (commandName === 'removerank') {
+        const ign = options.getString('ign');
+        const leaderboard = options.getString('leaderboard');
+        
+        await interaction.deferReply();
+        try {
+            const playersRef = ref(db, 'players');
+            const snapshot = await get(playersRef);
+            if (!snapshot.exists()) return interaction.editReply('❌ Database is empty.');
+            
+            let players = snapshot.val();
+            players = Array.isArray(players) ? players : Object.values(players);
+            players = players.filter(p => p && p.name && p.stats);
 
+            let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
+            if (playerIndex === -1) {
+                return interaction.editReply(`⚠️ Player **${ign}** not found.`);
+            }
+
+            if (players[playerIndex].stats[leaderboard]) {
+                delete players[playerIndex].stats[leaderboard];
+                if (Object.keys(players[playerIndex].stats).length === 0) {
+                    players.splice(playerIndex, 1);
+                }
+                await set(playersRef, players);
+                interaction.editReply(`✅ Removed **${leaderboard}** rank from **${ign}**.`);
+            } else {
+                interaction.editReply(`⚠️ Player **${ign}** doesn't have a rank in **${leaderboard}**.`);
+            }
+        } catch (error) {
+            interaction.editReply('❌ Database error.');
+        }
+    }
+
+    if (commandName === 'retire') {
+        const ign = options.getString('ign');
+        const leaderboard = options.getString('leaderboard');
+        
+        await interaction.deferReply();
+        try {
+            const playersRef = ref(db, 'players');
+            const snapshot = await get(playersRef);
+            if (!snapshot.exists()) return interaction.editReply('❌ Database is empty.');
+            
+            let players = snapshot.val();
+            players = Array.isArray(players) ? players : Object.values(players);
+            players = players.filter(p => p && p.name && p.stats);
+
+            let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
+            if (playerIndex !== -1 && players[playerIndex].stats[leaderboard]) {
+                let currentRank = players[playerIndex].stats[leaderboard];
+                if (typeof currentRank === 'number') {
+                    players[playerIndex].stats[leaderboard] = 'r' + currentRank;
+                    await set(playersRef, players);
+                    interaction.editReply(`✅ **${ign}** is now RETIRED in **${leaderboard}** at rank r#${currentRank}.`);
+                } else {
+                    interaction.editReply(`⚠️ Player is already retired in this mode.`);
+                }
+            } else {
+                interaction.editReply(`⚠️ Player **${ign}** not found or no active rank in **${leaderboard}**.`);
+            }
+        } catch (error) {
+            interaction.editReply('❌ Database error.');
+        }
+    }
+
+    if (commandName === 'promoted') {
+        const ign = options.getString('ign');
+        const leaderboard = options.getString('leaderboard');
+        const newRank = options.getInteger('rank');
+        
+        await interaction.deferReply();
+        try {
+            const playersRef = ref(db, 'players');
+            const snapshot = await get(playersRef);
+            let players = snapshot.exists() ? snapshot.val() : [];
+            players = Array.isArray(players) ? players : Object.values(players);
+            players = players.filter(p => p && p.name && p.stats);
+
+            let pIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
+            let oldRank = (pIndex !== -1 && typeof players[pIndex].stats[leaderboard] === 'number') 
+                          ? players[pIndex].stats[leaderboard] : 999;
+
+            // Shift active players down
+            players.forEach(p => {
+                let r = p.stats[leaderboard];
+                if (typeof r === 'number') {
+                    if (r >= newRank && r < oldRank) {
+                        if (r < 5) {
+                            p.stats[leaderboard] = r + 1;
+                        } else {
+                            delete p.stats[leaderboard];
+                        }
+                    }
+                }
+            });
+
+            // Clean up players with empty stats
+            players = players.filter(p => Object.keys(p.stats).length > 0);
+
+            // Assign new rank
+            pIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
+            if (pIndex !== -1) {
+                players[pIndex].stats[leaderboard] = newRank;
+            } else {
+                players.push({ name: ign, region: 'AS', stats: { [leaderboard]: newRank } });
+            }
+
+            await set(playersRef, players);
+            const embed = new EmbedBuilder()
+                .setColor('#00FF00')
+                .setTitle('⬆️ Player Promoted')
+                .setDescription(`**${ign}** was PROMOTED to **#${newRank}** in **${leaderboard}**. Existing players shifted down!`);
+            interaction.editReply({ content: '', embeds: [embed] });
+        } catch (error) {
+            interaction.editReply('❌ Database error.');
+        }
+    }
+
+    if (commandName === 'demoted') {
+        const ign = options.getString('ign');
+        const leaderboard = options.getString('leaderboard');
+        const newRank = options.getInteger('rank');
+        
+        await interaction.deferReply();
+        try {
+            const playersRef = ref(db, 'players');
+            const snapshot = await get(playersRef);
+            let players = snapshot.exists() ? snapshot.val() : [];
+            players = Array.isArray(players) ? players : Object.values(players);
+            players = players.filter(p => p && p.name && p.stats);
+
+            let pIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
+            if (pIndex !== -1 && typeof players[pIndex].stats[leaderboard] === 'number') {
+                let oldRank = players[pIndex].stats[leaderboard];
+                
+                // Shift active players up
+                players.forEach(p => {
+                    let r = p.stats[leaderboard];
+                    if (typeof r === 'number') {
+                        if (r > oldRank && r <= newRank) {
+                            p.stats[leaderboard] = r - 1;
+                        }
+                    }
+                });
+
+                players[pIndex].stats[leaderboard] = newRank;
+                
+                await set(playersRef, players);
+                const embed = new EmbedBuilder()
+                    .setColor('#FF0000')
+                    .setTitle('⬇️ Player Demoted')
+                    .setDescription(`**${ign}** was DEMOTED to **#${newRank}** in **${leaderboard}**. Existing players shifted up!`);
+                interaction.editReply({ content: '', embeds: [embed] });
+            } else {
+                interaction.editReply(`⚠️ **${ign}** is not active in **${leaderboard}** or does not exist.`);
+            }
+        } catch (error) {
+            interaction.editReply('❌ Database error.');
+        }
+    }
     if (commandName === 'results') {
         const player = options.getString('player');
         const opponent = options.getString('opponent');
