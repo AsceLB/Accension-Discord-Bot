@@ -71,14 +71,14 @@ async function buildLeaderboardMessage() {
     players = players.filter(p => p && p.name && p.stats);
 
     const categories = [
-        { id: 'sword', name: 'Sword', color: '#55FFFF', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/diamond_sword.png' },
-        { id: 'nethop', name: 'Netherite Potion', color: '#1a051d', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/netherite_helmet.png' },
-        { id: 'pot', name: 'Potion', color: '#ff7f7f', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/potion.png' },
-        { id: 'uhc', name: 'UHC', color: '#cc0000', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/golden_apple.png' },
-        { id: 'axe', name: 'Axe', color: '#c19a6b', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/diamond_axe.png' },
-        { id: 'mace', name: 'Mace', color: '#7f96a3', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.21/assets/minecraft/textures/item/mace.png' },
-        { id: 'vanilla', name: 'Vanilla', color: '#9b59b6', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/end_crystal.png' },
-        { id: 'smp', name: 'SMP', color: '#0b666a', thumb: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/item/ender_pearl.png' }
+        { id: 'sword', name: 'Sword', color: '#55FFFF', thumb: 'https://i.postimg.cc/3w0yMRbc/7286831720.png' },
+        { id: 'nethop', name: 'Netherite Potion', color: '#1a051d', thumb: 'https://i.postimg.cc/zvFbdcPL/6284938720.png' },
+        { id: 'pot', name: 'Potion', color: '#ff7f7f', thumb: 'https://i.postimg.cc/kXPvTrDJ/2157956720.png' },
+        { id: 'uhc', name: 'UHC', color: '#cc0000', thumb: 'https://i.postimg.cc/j2tCJhdL/7971572720.png' },
+        { id: 'axe', name: 'Axe', color: '#c19a6b', thumb: 'https://i.postimg.cc/vmKW9kps/3359126720.png' },
+        { id: 'mace', name: 'Mace', color: '#7f96a3', thumb: 'https://i.postimg.cc/qRdv9GKL/9333692720.png' },
+        { id: 'vanilla', name: 'Vanilla', color: '#9b59b6', thumb: 'https://i.postimg.cc/yNDRVnWb/4942142720.png' },
+        { id: 'smp', name: 'SMP', color: '#0b666a', thumb: 'https://i.postimg.cc/FsP173tF/8685573720.png' }
     ];
 
     const embeds = [];
