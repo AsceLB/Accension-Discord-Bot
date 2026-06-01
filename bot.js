@@ -71,14 +71,14 @@ async function buildLeaderboardMessage() {
     players = players.filter(p => p && p.name && p.stats);
 
     const categories = [
-        { id: 'sword', name: 'Sword', color: '#1ABC9C', thumb: 'https://i.postimg.cc/k471JtB6/sword.png' },
-        { id: 'nethop', name: 'Netherite Potion', color: '#2C3E50', thumb: 'https://i.postimg.cc/jS3QZgQh/nethpot.png' },
-        { id: 'pot', name: 'Potion', color: '#E74C3C', thumb: 'https://i.postimg.cc/T34w98xZ/pot.png' },
-        { id: 'uhc', name: 'Crystal (UHC)', color: '#9B59B6', thumb: 'https://i.postimg.cc/bJZv2N1V/uhc.png' },
-        { id: 'axe', name: 'Axe', color: '#E67E22', thumb: 'https://i.postimg.cc/QdnmCdfH/axe.png' },
-        { id: 'mace', name: 'Mace', color: '#95A5A6', thumb: 'https://i.postimg.cc/wMs059T2/mace.png' },
-        { id: 'vanilla', name: 'Vanilla', color: '#2ECC71', thumb: 'https://i.postimg.cc/Z5f0wX2p/vanilla.png' },
-        { id: 'smp', name: 'SMP', color: '#3498DB', thumb: 'https://i.postimg.cc/sXhM3Q9g/smp.png' }
+        { id: 'sword', name: 'Sword', color: '#1ABC9C', image: 'https://i.postimg.cc/fykPJYXN/sword.jpg' },
+        { id: 'nethop', name: 'Netherite Potion', color: '#2C3E50', image: 'https://i.postimg.cc/28ZHMkxR/nethop.jpg' },
+        { id: 'pot', name: 'Potion', color: '#E74C3C', image: 'https://i.postimg.cc/prgsr4RB/pot.jpg' },
+        { id: 'uhc', name: 'Crystal (UHC)', color: '#9B59B6', image: 'https://i.postimg.cc/RFps5qYp/uhc.jpg' },
+        { id: 'axe', name: 'Axe', color: '#E67E22', image: 'https://i.postimg.cc/ZYDgXDtT/axe.jpg' },
+        { id: 'mace', name: 'Mace', color: '#95A5A6', image: 'https://i.postimg.cc/wTCrjyjZ/mace.jpg' },
+        { id: 'vanilla', name: 'Vanilla', color: '#2ECC71', image: 'https://i.postimg.cc/YCQsGr4V/vanilla.jpg' },
+        { id: 'smp', name: 'SMP', color: '#3498DB', image: 'https://i.postimg.cc/Jz3p7pgP/smp.jpg' }
     ];
 
     const embeds = [];
@@ -91,13 +91,13 @@ async function buildLeaderboardMessage() {
         const embed = new EmbedBuilder()
             .setColor(cat.color)
             .setTitle(cat.name)
-            .setThumbnail(cat.thumb);
+            .setImage(cat.image);
 
         let desc = '';
         for (let i = 1; i <= 5; i++) {
             const player = sortedPlayers.find(p => p.stats[cat.id] === i);
             if (player) {
-                desc += `- **#${i}** ${player.name}\n`;
+                desc += `- **#${i}** **${player.name}**\n`;
             } else {
                 desc += `- **#${i}** N/A\n`;
             }
