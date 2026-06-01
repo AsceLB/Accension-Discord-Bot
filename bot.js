@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require('discord.js');
 const { initializeApp } = require('firebase/app');
 const { getDatabase, ref, get, set } = require('firebase/database');
 const { getAuth, signInAnonymously } = require('firebase/auth');
@@ -33,10 +33,140 @@ client.once('ready', async () => {
     }
 });
 
+// Function to calculate title based on points
+function getTitle(points) {
+    if (points >= 80) return 'Combat Grandmaster';
+    if (points >= 50) return 'Combat Master';
+    if (points >= 30) return 'Combat Ace';
+    if (points >= 15) return 'Combat Specialist';
+    if (points >= 10) return 'Combat Cadet';
+    if (points >= 5) return 'Combat Novice';
+    return 'Rookie';
+}
+
+const POSITION_POINTS = { 1: 10, 2: 7, 3: 5, 4: 3, 5: 1 };
+
+function getPlayerTotalPoints(player) {
+    let total = 0;
+    for (const [lb, rank] of Object.entries(player.stats || {})) {
+        if (typeof rank === 'number' && lb !== 'overall' && POSITION_POINTS[rank]) {
+            total += POSITION_POINTS[rank];
+        }
+    }
+    return total;
+}
+
+// Function to build leaderboard Embed and Components
+async function buildLeaderboardMessage(category) {
+    const playersRef = ref(db, 'players');
+    const snapshot = await get(playersRef);
+    let players = [];
+    if (snapshot.exists()) {
+        const data = snapshot.val();
+        players = Array.isArray(data) ? data : Object.values(data);
+    }
+    players = players.filter(p => p && p.name && p.stats);
+
+    let sortedPlayers = [];
+    
+    if (category === 'overall') {
+        sortedPlayers = players.filter(p => {
+            const pts = getPlayerTotalPoints(p);
+            return pts > 0 || (p.stats.overall && typeof p.stats.overall === 'number');
+        }).sort((a, b) => {
+            return getPlayerTotalPoints(b) - getPlayerTotalPoints(a);
+        });
+    } else {
+        sortedPlayers = players.filter(p => typeof p.stats[category] === 'number')
+            .sort((a, b) => a.stats[category] - b.stats[category]);
+    }
+
+    const top5 = sortedPlayers.slice(0, 5);
+
+    const embed = new EmbedBuilder()
+        .setColor('#F1C40F')
+        .setTitle(`🏆 Accension Leaderboard - ${category.toUpperCase()}`)
+        .setDescription(`Top 5 Players in **${category.toUpperCase()}**`)
+        .setFooter({ text: 'Accension Bot • Real-time Data' })
+        .setTimestamp();
+
+    if (top5.length === 0) {
+        embed.addFields({ name: 'No Data', value: 'No players found for this category yet.' });
+    } else {
+        const medals = ['🥇', '🥈', '🥉', '🏅', '🏅'];
+        top5.forEach((p, index) => {
+            let rank = index + 1;
+            if (category !== 'overall') {
+                rank = p.stats[category];
+            }
+            const pts = getPlayerTotalPoints(p);
+            const title = getTitle(pts);
+            
+            let val = `**Region:** ${p.region || 'AS'} | **Title:** ${title}`;
+            if (category === 'overall') {
+                val += `\n**Total Points:** ${pts}`;
+            } else {
+                val += `\n**Total Points:** ${pts}`;
+            }
+            
+            embed.addFields({
+                name: `${medals[index]} #${rank} - ${p.name}`,
+                value: val
+            });
+        });
+    }
+
+    const selectMenu = new StringSelectMenuBuilder()
+        .setCustomId('lb_select')
+        .setPlaceholder('Select Leaderboard Category...')
+        .addOptions(
+            new StringSelectMenuOptionBuilder().setLabel('Overall').setValue('overall').setEmoji('🏆'),
+            new StringSelectMenuOptionBuilder().setLabel('Sword').setValue('sword').setEmoji('⚔️'),
+            new StringSelectMenuOptionBuilder().setLabel('Axe').setValue('axe').setEmoji('🪓'),
+            new StringSelectMenuOptionBuilder().setLabel('Mace').setValue('mace').setEmoji('🔨'),
+            new StringSelectMenuOptionBuilder().setLabel('UHC').setValue('uhc').setEmoji('🍎'),
+            new StringSelectMenuOptionBuilder().setLabel('Vanilla').setValue('vanilla').setEmoji('🛡️'),
+            new StringSelectMenuOptionBuilder().setLabel('Pot').setValue('pot').setEmoji('🧪'),
+            new StringSelectMenuOptionBuilder().setLabel('Nethpot').setValue('nethop').setEmoji('🔥'),
+            new StringSelectMenuOptionBuilder().setLabel('SMP').setValue('smp').setEmoji('🌍')
+        );
+
+    const row = new ActionRowBuilder().addComponents(selectMenu);
+    
+    return { embeds: [embed], components: [row] };
+}
+
 client.on('interactionCreate', async interaction => {
+    if (interaction.isStringSelectMenu()) {
+        if (interaction.customId === 'lb_select') {
+            await interaction.deferUpdate();
+            const category = interaction.values[0];
+            try {
+                const messagePayload = await buildLeaderboardMessage(category);
+                await interaction.editReply(messagePayload);
+            } catch (error) {
+                console.error(error);
+                await interaction.followUp({ content: '❌ Error updating leaderboard.', ephemeral: true });
+            }
+        }
+        return;
+    }
+
     if (!interaction.isChatInputCommand()) return;
 
     const { commandName, options } = interaction;
+
+    if (commandName === 'leaderboard') {
+        await interaction.deferReply();
+        try {
+            const messagePayload = await buildLeaderboardMessage('overall');
+            await interaction.editReply(messagePayload);
+        } catch (error) {
+            console.error(error);
+            await interaction.editReply('❌ Error fetching leaderboard.');
+        }
+        return;
+    }
 
     if (commandName === 'add') {
         const ign = options.getString('ign');

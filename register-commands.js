@@ -222,7 +222,12 @@ const commands = [
         .addStringOption(option => 
             option.setName('newname')
                 .setDescription('The new IGN of the player')
-                .setRequired(true))
+                .setRequired(true)),
+                
+    new SlashCommandBuilder()
+        .setName('leaderboard')
+        .setDescription('View the interactive interactive leaderboard')
+
 ].map(command => command.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
