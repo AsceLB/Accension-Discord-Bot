@@ -197,7 +197,7 @@ client.on('interactionCreate', async interaction => {
                 if (typeof currentRank === 'number') {
                     players[playerIndex].stats[leaderboard] = 'r' + currentRank;
                     await set(playersRef, players);
-                    interaction.editReply(`✅ **${ign}** is now RETIRED in **${leaderboard}** at rank r#${currentRank}.`);
+                    interaction.editReply(`✅ **${ign}** is now RETIRED in **${leaderboard}** at rank #r${currentRank}.`);
                 } else {
                     interaction.editReply(`⚠️ Player is already retired in this mode.`);
                 }

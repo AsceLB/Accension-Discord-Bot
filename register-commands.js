@@ -26,7 +26,9 @@ const commands = [
         .addIntegerOption(option => 
             option.setName('position')
                 .setDescription('Rank position (e.g., 1, 2, 3...)')
-                .setRequired(true))
+                .setRequired(true)
+                .setMinValue(1)
+                .setMaxValue(5))
         .addStringOption(option => 
             option.setName('region')
                 .setDescription('Region (Default: AS)')
@@ -91,7 +93,9 @@ const commands = [
         .addIntegerOption(option => 
             option.setName('rank')
                 .setDescription('New rank achieved (e.g., 4)')
-                .setRequired(true))
+                .setRequired(true)
+                .setMinValue(1)
+                .setMaxValue(5))
         .addStringOption(option => 
             option.setName('region')
                 .setDescription('Region (e.g., AS)')
@@ -168,7 +172,9 @@ const commands = [
         .addIntegerOption(option => 
             option.setName('rank')
                 .setDescription('New rank achieved (e.g., 1)')
-                .setRequired(true)),
+                .setRequired(true)
+                .setMinValue(1)
+                .setMaxValue(5)),
                 
     new SlashCommandBuilder()
         .setName('demoted')
@@ -195,7 +201,9 @@ const commands = [
         .addIntegerOption(option => 
             option.setName('rank')
                 .setDescription('New rank (e.g., 3)')
-                .setRequired(true))
+                .setRequired(true)
+                .setMinValue(1)
+                .setMaxValue(5))
 ].map(command => command.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
