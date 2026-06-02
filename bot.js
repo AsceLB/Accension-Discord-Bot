@@ -337,7 +337,7 @@ client.on('interactionCreate', async interaction => {
                         .setThumbnail(avatarUrl)
                         .addFields(
                             { name: 'Mode', value: `**${leaderboard.toUpperCase()}**`, inline: true },
-                            { name: 'Locked Rank', value: `**#r${currentRank}**`, inline: true }
+                            { name: 'Locked Rank', value: `**R#${currentRank}**`, inline: true }
                         )
                         .setFooter({ text: 'Ascension Bot • System Update' })
                         .setTimestamp();
