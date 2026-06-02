@@ -413,83 +413,60 @@ client.on('interactionCreate', async interaction => {
         const playerScore = options.getInteger('player_score');
         const opponentScore = options.getInteger('opponent_score');
         const leaderboard = options.getString('leaderboard');
-        const status = options.getString('status');
-        const rank = options.getInteger('rank');
         const region = options.getString('region') || 'AS';
 
         await interaction.deferReply();
 
-        let embedColor = '#F1C40F'; // Maintained - Yellow
+        let embedColor = '#F1C40F'; // Tied - Yellow
+        let status = 'Tied';
         let statusEmoji = '➖';
-        if (status.includes('Promoted')) { embedColor = '#2ECC71'; statusEmoji = '📈'; }
-        else if (status.includes('Demoted')) { embedColor = '#E74C3C'; statusEmoji = '📉'; }
+        let verb = 'Tied';
 
-        // Update player in database if Promoted or Demoted
+        if (playerScore > opponentScore) { 
+            embedColor = '#2ECC71'; 
+            status = 'Won';
+            statusEmoji = '📈'; 
+            verb = 'Won';
+        } else if (playerScore < opponentScore) { 
+            embedColor = '#E74C3C'; 
+            status = 'Lost';
+            statusEmoji = '📉'; 
+            verb = 'Lost';
+        }
+
+        // Fetch player's current rank from database
+        let currentRank = 'Unranked';
         try {
-            if (status.includes('Promoted') || status.includes('Demoted')) {
-                const playersRef = ref(db, 'players');
-                const snapshot = await get(playersRef);
-                let players = [];
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    players = Array.isArray(data) ? data : Object.values(data);
-                    players = players.filter(p => p && p.name && p.stats);
-                }
+            const playersRef = ref(db, 'players');
+            const snapshot = await get(playersRef);
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                let players = Array.isArray(data) ? data : Object.values(data);
+                players = players.filter(p => p && p.name && p.stats);
                 
-                let playerIndex = players.findIndex(p => p.name.toLowerCase() === player.toLowerCase());
-                let oldRank = (playerIndex !== -1 && typeof players[playerIndex].stats[leaderboard] === 'number') 
-                              ? players[playerIndex].stats[leaderboard] : 999;
-                
-                if (status.includes('Promoted') || oldRank === 999) {
-                    players.forEach(p => {
-                        let r = p.stats[leaderboard];
-                        if (typeof r === 'number') {
-                            if (r >= rank && r < oldRank) {
-                                if (r < 5) p.stats[leaderboard] = r + 1;
-                                else delete p.stats[leaderboard];
-                            }
-                        }
-                    });
-                } else if (status.includes('Demoted')) {
-                    players.forEach(p => {
-                        let r = p.stats[leaderboard];
-                        if (typeof r === 'number') {
-                            if (r > oldRank && r <= rank) {
-                                p.stats[leaderboard] = r - 1;
-                            }
-                        }
-                    });
+                const playerIndex = players.findIndex(p => p.name.toLowerCase() === player.toLowerCase());
+                if (playerIndex !== -1 && typeof players[playerIndex].stats[leaderboard] === 'number') {
+                    currentRank = `#${players[playerIndex].stats[leaderboard]}`;
                 }
-                players = players.filter(p => Object.keys(p.stats).length > 0);
-                
-                playerIndex = players.findIndex(p => p.name.toLowerCase() === player.toLowerCase());
-                if (playerIndex !== -1) {
-                    players[playerIndex].stats[leaderboard] = rank;
-                    if (region) players[playerIndex].region = region;
-                } else {
-                    players.push({ name: player, region: region, stats: { [leaderboard]: rank } });
-                }
-                await set(playersRef, players);
             }
         } catch(e) {
-            console.error('Database update error on /results', e);
+            console.error('Database fetch error on /results', e);
         }
 
         const avatarUrl = `https://mc-heads.net/avatar/${player}/200`;
         const resultText = `${playerScore}-${opponentScore}`;
-        const verb = playerScore > opponentScore ? 'Won' : (playerScore < opponentScore ? 'Lost' : 'Tied');
         const lbName = leaderboard.charAt(0).toUpperCase() + leaderboard.slice(1);
 
         const resultEmbed = new EmbedBuilder()
             .setColor(embedColor)
             .setAuthor({ name: 'Accension Rank Match', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
-            .setTitle(`${statusEmoji} ${status} #${rank} ${lbName}`)
+            .setTitle(`${statusEmoji} Match Result: ${status}`)
             .setThumbnail(avatarUrl)
             .addFields(
                 { name: 'Player', value: `**\`${player}\`**`, inline: true },
                 { name: 'Region', value: `**${region}**`, inline: true },
-                { name: '\u200b', value: '\u200b', inline: true },
-                { name: 'Match Result', value: `> **${verb}** ${resultText} vs **\`${opponent}\`**`, inline: false }
+                { name: 'Current Rank', value: `**${currentRank}** (${lbName})`, inline: true },
+                { name: 'Score', value: `> **${verb}** ${resultText} vs **\`${opponent}\`**`, inline: false }
             )
             .setFooter({ text: 'Accension Bot • Match Update' })
             .setTimestamp();

@@ -80,21 +80,7 @@ const commands = [
                     { name: 'Nethpot', value: 'nethop' },
                     { name: 'SMP', value: 'smp' }
                 ))
-        .addStringOption(option => 
-            option.setName('status')
-                .setDescription('Rank status')
-                .setRequired(true)
-                .addChoices(
-                    { name: 'Promoted to', value: 'Promoted to' },
-                    { name: 'Demoted to', value: 'Demoted to' },
-                    { name: 'Maintained at', value: 'Maintained at' }
-                ))
-        .addIntegerOption(option => 
-            option.setName('rank')
-                .setDescription('New rank achieved (e.g., 4)')
-                .setRequired(true)
-                .setMinValue(1)
-                .setMaxValue(5))
+
         .addStringOption(option => 
             option.setName('region')
                 .setDescription('Region (e.g., AS)')
