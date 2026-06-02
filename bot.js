@@ -138,7 +138,7 @@ client.on('interactionCreate', async interaction => {
     }
 
     if (!hasAccess) {
-        return interaction.reply({ content: '❌ Bạn không có quyền sử dụng lệnh này.', ephemeral: true });
+        return interaction.reply({ content: '❌ You do not have permission to use this command.', ephemeral: true });
     }
 
     if (commandName === 'leaderboard') {
@@ -157,7 +157,7 @@ client.on('interactionCreate', async interaction => {
         const ign = options.getString('ign');
         const leaderboard = options.getString('leaderboard');
         const position = options.getInteger('position');
-        const region = options.getString('region') || 'AS'; // Mặc định là AS nếu không điền
+        const region = options.getString('region') || 'AS'; // Default to AS if not provided
 
         await interaction.deferReply();
 
