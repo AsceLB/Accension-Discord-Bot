@@ -540,58 +540,20 @@ client.on('interactionCreate', async interaction => {
         const resultText = `${playerScore}-${opponentScore}`;
         const lbName = leaderboard.charAt(0).toUpperCase() + leaderboard.slice(1);
 
-        const resultEmbed = new EmbedBuilder()
+        const combinedEmbed = new EmbedBuilder()
             .setColor(embedColor)
             .setAuthor({ name: 'Accension Rank Match', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
-            .setTitle(`${statusEmoji} Match Result: ${status}`)
+            .setTitle(`${statusEmoji} Match Result: ${player} vs ${opponent}`)
             .setThumbnail(avatarUrl)
             .addFields(
-                { name: 'Player', value: `**\`${player}\`**`, inline: true },
-                { name: 'Region', value: `**${region}**`, inline: true },
-                { name: 'Current Rank', value: `**${currentRank}** (${lbName})`, inline: true },
-                { name: 'Score', value: `> **${verb}** ${resultText} vs **\`${opponent}\`**`, inline: false },
-                { name: 'Rank Update', value: `> ${rankUpdateText}`, inline: false }
+                { name: 'Score', value: `> **${playerScore} - ${opponentScore}**`, inline: false },
+                { name: `🟦 \`${player}\``, value: `Region: **${region}**\nRank: **${currentRank}** (${lbName})\n> ${rankUpdateText}`, inline: true },
+                { name: `🟥 \`${opponent}\``, value: `Region: **${oppRegion}**\nRank: **${oppCurrentRank}** (${lbName})\n> ${oppRankUpdateText}`, inline: true }
             )
             .setFooter({ text: 'Accension Bot • Match Update' })
             .setTimestamp();
 
-        // Prepare opponent status and embed
-        let oppEmbedColor = '#F1C40F';
-        let oppStatus = 'Tied';
-        let oppStatusEmoji = '➖';
-        let oppVerb = 'Tied';
-
-        if (opponentScore > playerScore) { 
-            oppEmbedColor = '#2ECC71'; 
-            oppStatus = 'Won';
-            oppStatusEmoji = '📈'; 
-            oppVerb = 'Won';
-        } else if (opponentScore < playerScore) { 
-            oppEmbedColor = '#E74C3C'; 
-            oppStatus = 'Lost';
-            oppStatusEmoji = '📉'; 
-            oppVerb = 'Lost';
-        }
-
-        const oppAvatarUrl = `https://mc-heads.net/avatar/${opponent}/200`;
-        const oppResultText = `${opponentScore}-${playerScore}`;
-
-        const oppEmbed = new EmbedBuilder()
-            .setColor(oppEmbedColor)
-            .setAuthor({ name: 'Accension Rank Match', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
-            .setTitle(`${oppStatusEmoji} Match Result: ${oppStatus}`)
-            .setThumbnail(oppAvatarUrl)
-            .addFields(
-                { name: 'Player', value: `**\`${opponent}\`**`, inline: true },
-                { name: 'Region', value: `**${oppRegion}**`, inline: true },
-                { name: 'Current Rank', value: `**${oppCurrentRank}** (${lbName})`, inline: true },
-                { name: 'Score', value: `> **${oppVerb}** ${oppResultText} vs **\`${player}\`**`, inline: false },
-                { name: 'Rank Update', value: `> ${oppRankUpdateText}`, inline: false }
-            )
-            .setFooter({ text: 'Accension Bot • Match Update' })
-            .setTimestamp();
-
-        await interaction.editReply({ content: '', embeds: [resultEmbed, oppEmbed] });
+        await interaction.editReply({ content: '', embeds: [combinedEmbed] });
     }
     if (commandName === 'changeregion') {
         const player = options.getString('player');
