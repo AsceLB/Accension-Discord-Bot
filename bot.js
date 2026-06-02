@@ -488,6 +488,9 @@ client.on('interactionCreate', async interaction => {
         // Fetch players from database
         let currentRank = 'Unranked';
         let rankUpdateText = 'No Change';
+        let oppCurrentRank = 'Unranked';
+        let oppRankUpdateText = 'No Change';
+        let oppRegion = 'AS'; // Default if not found
 
         try {
             const playersRef = ref(db, 'players');
@@ -504,6 +507,8 @@ client.on('interactionCreate', async interaction => {
                 let oRank = (oppIndex !== -1 && typeof players[oppIndex].stats[leaderboard] === 'number') ? players[oppIndex].stats[leaderboard] : null;
 
                 if (pRank !== null) currentRank = `#${pRank}`;
+                if (oRank !== null) oppCurrentRank = `#${oRank}`;
+                if (oppIndex !== -1 && players[oppIndex].region) oppRegion = players[oppIndex].region;
 
                 if (status === 'Won' && oppIndex !== -1 && oRank !== null && pRank !== null && oRank < pRank) {
                     // Player won against someone with a better rank -> Promote to their rank
@@ -523,6 +528,10 @@ client.on('interactionCreate', async interaction => {
                     
                     players[playerIndex].stats[leaderboard] = newRank;
                     rankUpdateText = `Promoted to **#${newRank}** ⬆️`;
+                    
+                    // Opponent was shifted down
+                    if (oRank < 5) oppRankUpdateText = `Demoted to **#${oRank + 1}** ⬇️`;
+                    else oppRankUpdateText = `Demoted off leaderboard ⬇️`;
 
                     // Cleanup and Save
                     players = players.filter(p => Object.keys(p.stats).length > 0);
@@ -546,10 +555,14 @@ client.on('interactionCreate', async interaction => {
                     players[playerIndex].stats[leaderboard] = newRank;
                     rankUpdateText = `Promoted to **#${newRank}** ⬆️`;
 
+                    if (oRank < 5) oppRankUpdateText = `Demoted to **#${oRank + 1}** ⬇️`;
+                    else oppRankUpdateText = `Demoted off leaderboard ⬇️`;
+
                     players = players.filter(p => Object.keys(p.stats).length > 0);
                     await set(playersRef, players);
                 } else {
                     rankUpdateText = `Manual update required (use /promote or /demote)`;
+                    oppRankUpdateText = `Manual update required (use /promote or /demote)`;
                 }
             }
         } catch(e) {
@@ -575,7 +588,43 @@ client.on('interactionCreate', async interaction => {
             .setFooter({ text: 'Accension Bot • Match Update' })
             .setTimestamp();
 
-        await interaction.editReply({ content: '', embeds: [resultEmbed] });
+        // Prepare opponent status and embed
+        let oppEmbedColor = '#F1C40F';
+        let oppStatus = 'Tied';
+        let oppStatusEmoji = '➖';
+        let oppVerb = 'Tied';
+
+        if (opponentScore > playerScore) { 
+            oppEmbedColor = '#2ECC71'; 
+            oppStatus = 'Won';
+            oppStatusEmoji = '📈'; 
+            oppVerb = 'Won';
+        } else if (opponentScore < playerScore) { 
+            oppEmbedColor = '#E74C3C'; 
+            oppStatus = 'Lost';
+            oppStatusEmoji = '📉'; 
+            oppVerb = 'Lost';
+        }
+
+        const oppAvatarUrl = `https://mc-heads.net/avatar/${opponent}/200`;
+        const oppResultText = `${opponentScore}-${playerScore}`;
+
+        const oppEmbed = new EmbedBuilder()
+            .setColor(oppEmbedColor)
+            .setAuthor({ name: 'Accension Rank Match', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+            .setTitle(`${oppStatusEmoji} Match Result: ${oppStatus}`)
+            .setThumbnail(oppAvatarUrl)
+            .addFields(
+                { name: 'Player', value: `**\`${opponent}\`**`, inline: true },
+                { name: 'Region', value: `**${oppRegion}**`, inline: true },
+                { name: 'Current Rank', value: `**${oppCurrentRank}** (${lbName})`, inline: true },
+                { name: 'Score', value: `> **${oppVerb}** ${oppResultText} vs **\`${player}\`**`, inline: false },
+                { name: 'Rank Update', value: `> ${oppRankUpdateText}`, inline: false }
+            )
+            .setFooter({ text: 'Accension Bot • Match Update' })
+            .setTimestamp();
+
+        await interaction.editReply({ content: '', embeds: [resultEmbed, oppEmbed] });
     }
     if (commandName === 'changeregion') {
         const player = options.getString('player');
