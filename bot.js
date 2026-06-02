@@ -200,6 +200,7 @@ client.on('interactionCreate', async interaction => {
             const avatarUrl = `https://mc-heads.net/avatar/${ign}/200`;
             const addEmbed = new EmbedBuilder()
                 .setColor('#00FF00')
+                .setAuthor({ name: 'Accension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                 .setTitle('✅ Player Updated')
                 .setThumbnail(avatarUrl)
                 .addFields(
@@ -208,6 +209,7 @@ client.on('interactionCreate', async interaction => {
                     { name: 'Leaderboard', value: `**${leaderboard.toUpperCase()}**`, inline: true },
                     { name: 'New Rank', value: `**#${position}**`, inline: true }
                 )
+                .setFooter({ text: 'Accension Bot • System Update' })
                 .setTimestamp();
                 
             await interaction.editReply({ content: '', embeds: [addEmbed] });
@@ -281,11 +283,22 @@ client.on('interactionCreate', async interaction => {
 
             if (players[playerIndex].stats[leaderboard]) {
                 delete players[playerIndex].stats[leaderboard];
-                if (Object.keys(players[playerIndex].stats).length === 0) {
-                    players.splice(playerIndex, 1);
-                }
+                
+                players = players.filter(p => Object.keys(p.stats).length > 0);
                 await set(playersRef, players);
-                interaction.editReply(`✅ Removed **${leaderboard}** rank from **${ign}**.`);
+                
+                const avatarUrl = `https://mc-heads.net/avatar/${ign}/200`;
+                const removeEmbed = new EmbedBuilder()
+                    .setColor('#E67E22')
+                    .setAuthor({ name: 'Accension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+                    .setTitle('🔻 Rank Removed')
+                    .setDescription(`The rank for **${leaderboard.toUpperCase()}** has been removed.`)
+                    .setThumbnail(avatarUrl)
+                    .addFields({ name: 'Player', value: `**\`${ign}\`**`, inline: true })
+                    .setFooter({ text: 'Accension Bot • System Update' })
+                    .setTimestamp();
+                    
+                interaction.editReply({ content: '', embeds: [removeEmbed] });
             } else {
                 interaction.editReply(`⚠️ Player **${ign}** doesn't have a rank in **${leaderboard}**.`);
             }
@@ -314,7 +327,22 @@ client.on('interactionCreate', async interaction => {
                 if (typeof currentRank === 'number') {
                     players[playerIndex].stats[leaderboard] = 'r' + currentRank;
                     await set(playersRef, players);
-                    interaction.editReply(`✅ **${ign}** is now RETIRED in **${leaderboard}** at rank #r${currentRank}.`);
+                    
+                    const avatarUrl = `https://mc-heads.net/avatar/${ign}/200`;
+                    const retireEmbed = new EmbedBuilder()
+                        .setColor('#95A5A6')
+                        .setAuthor({ name: 'Accension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+                        .setTitle('💤 Player Retired')
+                        .setDescription(`**${ign}** is now RETIRED in **${leaderboard.toUpperCase()}**.`)
+                        .setThumbnail(avatarUrl)
+                        .addFields(
+                            { name: 'Mode', value: `**${leaderboard.toUpperCase()}**`, inline: true },
+                            { name: 'Locked Rank', value: `**#r${currentRank}**`, inline: true }
+                        )
+                        .setFooter({ text: 'Accension Bot • System Update' })
+                        .setTimestamp();
+                        
+                    interaction.editReply({ content: '', embeds: [retireEmbed] });
                 } else {
                     interaction.editReply(`⚠️ Player is already retired in this mode.`);
                 }
@@ -369,10 +397,15 @@ client.on('interactionCreate', async interaction => {
             }
 
             await set(playersRef, players);
+            const avatarUrl = `https://mc-heads.net/avatar/${ign}/200`;
             const embed = new EmbedBuilder()
-                .setColor('#00FF00')
+                .setColor('#2ECC71')
+                .setAuthor({ name: 'Accension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                 .setTitle('⬆️ Player Promoted')
-                .setDescription(`**${ign}** was PROMOTED to **#${newRank}** in **${leaderboard}**. Existing players shifted down!`);
+                .setThumbnail(avatarUrl)
+                .setDescription(`**\`${ign}\`** was PROMOTED to **#${newRank}** in **${leaderboard.toUpperCase()}**.\n> Existing players shifted down!`)
+                .setFooter({ text: 'Accension Bot • System Update' })
+                .setTimestamp();
             interaction.editReply({ content: '', embeds: [embed] });
         } catch (error) {
             interaction.editReply('❌ Database error.');
@@ -406,13 +439,17 @@ client.on('interactionCreate', async interaction => {
                     }
                 });
 
-                players[pIndex].stats[leaderboard] = newRank;
-                
+                players = players.filter(p => Object.keys(p.stats).length > 0);
                 await set(playersRef, players);
+                const avatarUrl = `https://mc-heads.net/avatar/${ign}/200`;
                 const embed = new EmbedBuilder()
-                    .setColor('#FF0000')
+                    .setColor('#E74C3C')
+                    .setAuthor({ name: 'Accension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                     .setTitle('⬇️ Player Demoted')
-                    .setDescription(`**${ign}** was DEMOTED to **#${newRank}** in **${leaderboard}**. Existing players shifted up!`);
+                    .setThumbnail(avatarUrl)
+                    .setDescription(`**\`${ign}\`** was DEMOTED to **#${newRank}** in **${leaderboard.toUpperCase()}**.\n> Existing players shifted up!`)
+                    .setFooter({ text: 'Accension Bot • System Update' })
+                    .setTimestamp();
                 interaction.editReply({ content: '', embeds: [embed] });
             } else {
                 interaction.editReply(`⚠️ **${ign}** is not active in **${leaderboard}** or does not exist.`);
@@ -448,8 +485,10 @@ client.on('interactionCreate', async interaction => {
             verb = 'Lost';
         }
 
-        // Fetch player's current rank from database
+        // Fetch players from database
         let currentRank = 'Unranked';
+        let rankUpdateText = 'No Change';
+
         try {
             const playersRef = ref(db, 'players');
             const snapshot = await get(playersRef);
@@ -459,8 +498,58 @@ client.on('interactionCreate', async interaction => {
                 players = players.filter(p => p && p.name && p.stats);
                 
                 const playerIndex = players.findIndex(p => p.name.toLowerCase() === player.toLowerCase());
-                if (playerIndex !== -1 && typeof players[playerIndex].stats[leaderboard] === 'number') {
-                    currentRank = `#${players[playerIndex].stats[leaderboard]}`;
+                const oppIndex = players.findIndex(p => p.name.toLowerCase() === opponent.toLowerCase());
+
+                let pRank = (playerIndex !== -1 && typeof players[playerIndex].stats[leaderboard] === 'number') ? players[playerIndex].stats[leaderboard] : null;
+                let oRank = (oppIndex !== -1 && typeof players[oppIndex].stats[leaderboard] === 'number') ? players[oppIndex].stats[leaderboard] : null;
+
+                if (pRank !== null) currentRank = `#${pRank}`;
+
+                if (status === 'Won' && oppIndex !== -1 && oRank !== null && pRank !== null && oRank < pRank) {
+                    // Player won against someone with a better rank -> Promote to their rank
+                    let oldRank = pRank;
+                    let newRank = oRank;
+                    
+                    // Shift active players down
+                    players.forEach(p => {
+                        let r = p.stats[leaderboard];
+                        if (typeof r === 'number') {
+                            if (r >= newRank && r < oldRank) {
+                                if (r < 5) p.stats[leaderboard] = r + 1;
+                                else delete p.stats[leaderboard];
+                            }
+                        }
+                    });
+                    
+                    players[playerIndex].stats[leaderboard] = newRank;
+                    rankUpdateText = `Promoted to **#${newRank}** ⬆️`;
+
+                    // Cleanup and Save
+                    players = players.filter(p => Object.keys(p.stats).length > 0);
+                    await set(playersRef, players);
+                } else if (status === 'Won' && pRank === null && oppIndex !== -1 && oRank !== null) {
+                    // Player won against someone but was unranked -> Promote to their rank
+                    let oldRank = 999;
+                    let newRank = oRank;
+                    
+                    // Shift active players down
+                    players.forEach(p => {
+                        let r = p.stats[leaderboard];
+                        if (typeof r === 'number') {
+                            if (r >= newRank && r < oldRank) {
+                                if (r < 5) p.stats[leaderboard] = r + 1;
+                                else delete p.stats[leaderboard];
+                            }
+                        }
+                    });
+                    
+                    players[playerIndex].stats[leaderboard] = newRank;
+                    rankUpdateText = `Promoted to **#${newRank}** ⬆️`;
+
+                    players = players.filter(p => Object.keys(p.stats).length > 0);
+                    await set(playersRef, players);
+                } else {
+                    rankUpdateText = `Manual update required (use /promote or /demote)`;
                 }
             }
         } catch(e) {
@@ -480,7 +569,8 @@ client.on('interactionCreate', async interaction => {
                 { name: 'Player', value: `**\`${player}\`**`, inline: true },
                 { name: 'Region', value: `**${region}**`, inline: true },
                 { name: 'Current Rank', value: `**${currentRank}** (${lbName})`, inline: true },
-                { name: 'Score', value: `> **${verb}** ${resultText} vs **\`${opponent}\`**`, inline: false }
+                { name: 'Score', value: `> **${verb}** ${resultText} vs **\`${opponent}\`**`, inline: false },
+                { name: 'Rank Update', value: `> ${rankUpdateText}`, inline: false }
             )
             .setFooter({ text: 'Accension Bot • Match Update' })
             .setTimestamp();
@@ -509,10 +599,19 @@ client.on('interactionCreate', async interaction => {
                 players[playerIndex].region = region;
                 await set(playersRef, players);
                 
+                const avatarUrl = `https://mc-heads.net/avatar/${players[playerIndex].name}/200`;
                 const embed = new EmbedBuilder()
                     .setColor('#3498DB')
+                    .setAuthor({ name: 'Accension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                     .setTitle('🌍 Region Changed')
-                    .setDescription(`**${players[playerIndex].name}**'s region was changed from **${oldRegion}** to **${region}**.`);
+                    .setThumbnail(avatarUrl)
+                    .addFields(
+                        { name: 'Player', value: `**\`${players[playerIndex].name}\`**`, inline: true },
+                        { name: 'Old Region', value: `**${oldRegion}**`, inline: true },
+                        { name: 'New Region', value: `**${region}**`, inline: true }
+                    )
+                    .setFooter({ text: 'Accension Bot • System Update' })
+                    .setTimestamp();
                 interaction.editReply({ content: '', embeds: [embed] });
             } else {
                 interaction.editReply(`⚠️ **${player}** not found in the database.`);
@@ -547,12 +646,21 @@ client.on('interactionCreate', async interaction => {
             if (playerIndex !== -1) {
                 const actualOldName = players[playerIndex].name;
                 players[playerIndex].name = newName;
+                players = players.filter(p => Object.keys(p.stats).length > 0);
                 await set(playersRef, players);
                 
+                const avatarUrl = `https://mc-heads.net/avatar/${newName}/200`;
                 const embed = new EmbedBuilder()
                     .setColor('#9B59B6')
-                    .setTitle('✏️ Name Changed')
-                    .setDescription(`Player **${actualOldName}** has been renamed to **${newName}**.`);
+                    .setAuthor({ name: 'Accension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+                    .setTitle('🏷️ Name Changed')
+                    .setThumbnail(avatarUrl)
+                    .addFields(
+                        { name: 'Old Name', value: `**\`${actualOldName}\`**`, inline: true },
+                        { name: 'New Name', value: `**\`${newName}\`**`, inline: true }
+                    )
+                    .setFooter({ text: 'Accension Bot • System Update' })
+                    .setTimestamp();
                 interaction.editReply({ content: '', embeds: [embed] });
             } else {
                 interaction.editReply(`⚠️ **${oldName}** not found in the database.`);
