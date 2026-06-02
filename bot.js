@@ -120,10 +120,24 @@ client.on('interactionCreate', async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
     const ADMIN_IDS = ['760539503211053057', '1406613103499677746', '1243137908613840958'];
-    const { commandName, options } = interaction;
+    const ADMIN_ROLES = ['1493227708446937158', '1483019761091612815'];
+    const { commandName, options, user, member } = interaction;
 
-    // All commands require admin
-    if (!ADMIN_IDS.includes(interaction.user.id)) {
+    let hasAccess = false;
+    
+    // Check User ID
+    if (user && ADMIN_IDS.includes(user.id)) {
+        hasAccess = true;
+    }
+    
+    // Check Roles (only works if used inside a server/guild)
+    if (!hasAccess && member && member.roles && member.roles.cache) {
+        if (member.roles.cache.some(role => ADMIN_ROLES.includes(role.id))) {
+            hasAccess = true;
+        }
+    }
+
+    if (!hasAccess) {
         return interaction.reply({ content: '❌ Bạn không có quyền sử dụng lệnh này.', ephemeral: true });
     }
 
