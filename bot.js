@@ -200,7 +200,7 @@ client.on('interactionCreate', async interaction => {
             const avatarUrl = `https://mc-heads.net/avatar/${ign}/200`;
             const addEmbed = new EmbedBuilder()
                 .setColor('#00FF00')
-                .setAuthor({ name: 'Accension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+                .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                 .setTitle('✅ Player Updated')
                 .setThumbnail(avatarUrl)
                 .addFields(
@@ -209,7 +209,7 @@ client.on('interactionCreate', async interaction => {
                     { name: 'Leaderboard', value: `**${leaderboard.toUpperCase()}**`, inline: true },
                     { name: 'New Rank', value: `**#${position}**`, inline: true }
                 )
-                .setFooter({ text: 'Accension Bot • System Update' })
+                .setFooter({ text: 'Ascension Bot • System Update' })
                 .setTimestamp();
                 
             await interaction.editReply({ content: '', embeds: [addEmbed] });
@@ -248,11 +248,11 @@ client.on('interactionCreate', async interaction => {
             
             const delEmbed = new EmbedBuilder()
                 .setColor('#E74C3C')
-                .setAuthor({ name: 'Accension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+                .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                 .setTitle('🗑️ Player Deleted')
                 .setDescription(`The player **\`${ign}\`** has been completely removed from all leaderboards.`)
                 .setThumbnail(`https://mc-heads.net/avatar/${ign}/200`)
-                .setFooter({ text: 'Accension Bot • System Update' })
+                .setFooter({ text: 'Ascension Bot • System Update' })
                 .setTimestamp();
                 
             await interaction.editReply({ content: '', embeds: [delEmbed] });
@@ -290,12 +290,12 @@ client.on('interactionCreate', async interaction => {
                 const avatarUrl = `https://mc-heads.net/avatar/${ign}/200`;
                 const removeEmbed = new EmbedBuilder()
                     .setColor('#E67E22')
-                    .setAuthor({ name: 'Accension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+                    .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                     .setTitle('🔻 Rank Removed')
                     .setDescription(`The rank for **${leaderboard.toUpperCase()}** has been removed.`)
                     .setThumbnail(avatarUrl)
                     .addFields({ name: 'Player', value: `**\`${ign}\`**`, inline: true })
-                    .setFooter({ text: 'Accension Bot • System Update' })
+                    .setFooter({ text: 'Ascension Bot • System Update' })
                     .setTimestamp();
                     
                 interaction.editReply({ content: '', embeds: [removeEmbed] });
@@ -331,7 +331,7 @@ client.on('interactionCreate', async interaction => {
                     const avatarUrl = `https://mc-heads.net/avatar/${ign}/200`;
                     const retireEmbed = new EmbedBuilder()
                         .setColor('#95A5A6')
-                        .setAuthor({ name: 'Accension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+                        .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                         .setTitle('💤 Player Retired')
                         .setDescription(`**${ign}** is now RETIRED in **${leaderboard.toUpperCase()}**.`)
                         .setThumbnail(avatarUrl)
@@ -339,7 +339,7 @@ client.on('interactionCreate', async interaction => {
                             { name: 'Mode', value: `**${leaderboard.toUpperCase()}**`, inline: true },
                             { name: 'Locked Rank', value: `**#r${currentRank}**`, inline: true }
                         )
-                        .setFooter({ text: 'Accension Bot • System Update' })
+                        .setFooter({ text: 'Ascension Bot • System Update' })
                         .setTimestamp();
                         
                     interaction.editReply({ content: '', embeds: [retireEmbed] });
@@ -400,11 +400,11 @@ client.on('interactionCreate', async interaction => {
             const avatarUrl = `https://mc-heads.net/avatar/${ign}/200`;
             const embed = new EmbedBuilder()
                 .setColor('#2ECC71')
-                .setAuthor({ name: 'Accension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+                .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                 .setTitle('⬆️ Player Promoted')
                 .setThumbnail(avatarUrl)
                 .setDescription(`**\`${ign}\`** was PROMOTED to **#${newRank}** in **${leaderboard.toUpperCase()}**.\n> Existing players shifted down!`)
-                .setFooter({ text: 'Accension Bot • System Update' })
+                .setFooter({ text: 'Ascension Bot • System Update' })
                 .setTimestamp();
             interaction.editReply({ content: '', embeds: [embed] });
         } catch (error) {
@@ -445,11 +445,11 @@ client.on('interactionCreate', async interaction => {
                 const avatarUrl = `https://mc-heads.net/avatar/${ign}/200`;
                 const embed = new EmbedBuilder()
                     .setColor('#E74C3C')
-                    .setAuthor({ name: 'Accension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+                    .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                     .setTitle('⬇️ Player Demoted')
                     .setThumbnail(avatarUrl)
                     .setDescription(`**\`${ign}\`** was DEMOTED to **#${newRank}** in **${leaderboard.toUpperCase()}**.\n> Existing players shifted up!`)
-                    .setFooter({ text: 'Accension Bot • System Update' })
+                    .setFooter({ text: 'Ascension Bot • System Update' })
                     .setTimestamp();
                 interaction.editReply({ content: '', embeds: [embed] });
             } else {
@@ -542,7 +542,7 @@ client.on('interactionCreate', async interaction => {
 
         const combinedEmbed = new EmbedBuilder()
             .setColor(embedColor)
-            .setAuthor({ name: 'Accension Rank Match', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+            .setAuthor({ name: 'Ascension Rank Match', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
             .setTitle(`${statusEmoji} Match Result: ${player} vs ${opponent}`)
             .setThumbnail(avatarUrl)
             .addFields(
@@ -550,7 +550,7 @@ client.on('interactionCreate', async interaction => {
                 { name: `🟦 \`${player}\``, value: `Region: **${region}**\nRank: **${currentRank}** (${lbName})\n> ${rankUpdateText}`, inline: true },
                 { name: `🟥 \`${opponent}\``, value: `Region: **${oppRegion}**\nRank: **${oppCurrentRank}** (${lbName})\n> ${oppRankUpdateText}`, inline: true }
             )
-            .setFooter({ text: 'Accension Bot • Match Update' })
+            .setFooter({ text: 'Ascension Bot • Match Update' })
             .setTimestamp();
 
         await interaction.editReply({ content: '', embeds: [combinedEmbed] });
@@ -580,7 +580,7 @@ client.on('interactionCreate', async interaction => {
                 const avatarUrl = `https://mc-heads.net/avatar/${players[playerIndex].name}/200`;
                 const embed = new EmbedBuilder()
                     .setColor('#3498DB')
-                    .setAuthor({ name: 'Accension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+                    .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                     .setTitle('🌍 Region Changed')
                     .setThumbnail(avatarUrl)
                     .addFields(
@@ -588,7 +588,7 @@ client.on('interactionCreate', async interaction => {
                         { name: 'Old Region', value: `**${oldRegion}**`, inline: true },
                         { name: 'New Region', value: `**${region}**`, inline: true }
                     )
-                    .setFooter({ text: 'Accension Bot • System Update' })
+                    .setFooter({ text: 'Ascension Bot • System Update' })
                     .setTimestamp();
                 interaction.editReply({ content: '', embeds: [embed] });
             } else {
@@ -630,14 +630,14 @@ client.on('interactionCreate', async interaction => {
                 const avatarUrl = `https://mc-heads.net/avatar/${newName}/200`;
                 const embed = new EmbedBuilder()
                     .setColor('#9B59B6')
-                    .setAuthor({ name: 'Accension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+                    .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                     .setTitle('🏷️ Name Changed')
                     .setThumbnail(avatarUrl)
                     .addFields(
                         { name: 'Old Name', value: `**\`${actualOldName}\`**`, inline: true },
                         { name: 'New Name', value: `**\`${newName}\`**`, inline: true }
                     )
-                    .setFooter({ text: 'Accension Bot • System Update' })
+                    .setFooter({ text: 'Ascension Bot • System Update' })
                     .setTimestamp();
                 interaction.editReply({ content: '', embeds: [embed] });
             } else {
