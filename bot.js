@@ -439,6 +439,7 @@ client.on('interactionCreate', async interaction => {
                     }
                 });
 
+                players[pIndex].stats[leaderboard] = newRank;
                 players = players.filter(p => Object.keys(p.stats).length > 0);
                 await set(playersRef, players);
                 const avatarUrl = `https://mc-heads.net/avatar/${ign}/200`;
@@ -511,58 +512,24 @@ client.on('interactionCreate', async interaction => {
                 if (oppIndex !== -1 && players[oppIndex].region) oppRegion = players[oppIndex].region;
 
                 if (status === 'Won' && oppIndex !== -1 && oRank !== null && pRank !== null && oRank < pRank) {
-                    // Player won against someone with a better rank -> Promote to their rank
-                    let oldRank = pRank;
+                    // Player won against someone with a better rank
                     let newRank = oRank;
-                    
-                    // Shift active players down
-                    players.forEach(p => {
-                        let r = p.stats[leaderboard];
-                        if (typeof r === 'number') {
-                            if (r >= newRank && r < oldRank) {
-                                if (r < 5) p.stats[leaderboard] = r + 1;
-                                else delete p.stats[leaderboard];
-                            }
-                        }
-                    });
-                    
-                    players[playerIndex].stats[leaderboard] = newRank;
                     rankUpdateText = `Promoted to **#${newRank}** ⬆️`;
                     
-                    // Opponent was shifted down
                     if (oRank < 5) oppRankUpdateText = `Demoted to **#${oRank + 1}** ⬇️`;
                     else oppRankUpdateText = `Demoted off leaderboard ⬇️`;
 
-                    // Cleanup and Save
-                    players = players.filter(p => Object.keys(p.stats).length > 0);
-                    await set(playersRef, players);
                 } else if (status === 'Won' && pRank === null && oppIndex !== -1 && oRank !== null) {
-                    // Player won against someone but was unranked -> Promote to their rank
-                    let oldRank = 999;
+                    // Player won against someone but was unranked
                     let newRank = oRank;
-                    
-                    // Shift active players down
-                    players.forEach(p => {
-                        let r = p.stats[leaderboard];
-                        if (typeof r === 'number') {
-                            if (r >= newRank && r < oldRank) {
-                                if (r < 5) p.stats[leaderboard] = r + 1;
-                                else delete p.stats[leaderboard];
-                            }
-                        }
-                    });
-                    
-                    players[playerIndex].stats[leaderboard] = newRank;
                     rankUpdateText = `Promoted to **#${newRank}** ⬆️`;
 
                     if (oRank < 5) oppRankUpdateText = `Demoted to **#${oRank + 1}** ⬇️`;
                     else oppRankUpdateText = `Demoted off leaderboard ⬇️`;
 
-                    players = players.filter(p => Object.keys(p.stats).length > 0);
-                    await set(playersRef, players);
                 } else {
-                    rankUpdateText = `Manual update required (use /promote or /demote)`;
-                    oppRankUpdateText = `Manual update required (use /promote or /demote)`;
+                    rankUpdateText = `No rank change`;
+                    oppRankUpdateText = `No rank change`;
                 }
             }
         } catch(e) {
