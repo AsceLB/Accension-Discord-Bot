@@ -229,10 +229,26 @@ client.on('interactionCreate', async interaction => {
     }
 
     if (commandName === 'logmatch') {
-        const winner = options.getString('winner');
-        const loser = options.getString('loser');
+        const player1 = options.getString('player1');
+        const score1 = options.getInteger('score1');
+        const player2 = options.getString('player2');
+        const score2 = options.getInteger('score2');
         const leaderboard = options.getString('leaderboard');
         const action = options.getString('action'); // Promoted, Demoted, Stayed
+        
+        let winner = player1;
+        let loser = player2;
+        let scoreWinner = score1;
+        let scoreLoser = score2;
+        
+        if (score2 > score1) {
+            winner = player2;
+            loser = player1;
+            scoreWinner = score2;
+            scoreLoser = score1;
+        } else if (score1 === score2) {
+            return interaction.reply({ content: '❌ A match cannot end in a draw.', ephemeral: true });
+        }
         
         await interaction.deferReply();
         try {
@@ -282,6 +298,8 @@ client.on('interactionCreate', async interaction => {
                 timestamp: Date.now(),
                 winner: players[winnerIndex].name,
                 loser: players[loserIndex].name,
+                scoreWinner: scoreWinner,
+                scoreLoser: scoreLoser,
                 leaderboard: leaderboard,
                 action: action
             };
@@ -295,7 +313,7 @@ client.on('interactionCreate', async interaction => {
             const matchEmbed = new EmbedBuilder()
                 .setColor('#00FF00')
                 .setTitle('⚔️ Match Result Logged')
-                .setDescription(`**${players[winnerIndex].name}** defeated **${players[loserIndex].name}** in **${leaderboard.toUpperCase()}**!`)
+                .setDescription(`**${players[winnerIndex].name}** (${scoreWinner}) defeated **${players[loserIndex].name}** (${scoreLoser}) in **${leaderboard.toUpperCase()}**!`)
                 .addFields(
                     { name: 'Winner Stats', value: `Wins: ${players[winnerIndex].wins} | Streak: 🔥 ${players[winnerIndex].streak}`, inline: true },
                     { name: 'Loser Stats', value: `Losses: ${players[loserIndex].losses} | Streak: ❄️ 0`, inline: true },
@@ -305,6 +323,39 @@ client.on('interactionCreate', async interaction => {
                 .setTimestamp();
 
             interaction.editReply({ content: '', embeds: [matchEmbed] });
+        } catch (error) {
+            console.error(error);
+            interaction.editReply('❌ Database error.');
+        }
+    }
+
+    if (commandName === 'dellogmatch') {
+        const index = options.getInteger('index');
+        
+        await interaction.deferReply();
+        try {
+            const matchHistoryRef = ref(db, 'match_history');
+            const matchSnapshot = await get(matchHistoryRef);
+            
+            if (!matchSnapshot.exists()) return interaction.editReply('❌ No match history found.');
+            
+            let matchHistory = matchSnapshot.val();
+            matchHistory = Array.isArray(matchHistory) ? matchHistory : Object.values(matchHistory);
+            
+            if (index < 1 || index > matchHistory.length) {
+                return interaction.editReply(`❌ Invalid index. Please provide a number between 1 and ${matchHistory.length}.`);
+            }
+            
+            const deletedMatch = matchHistory.splice(index - 1, 1)[0];
+            await set(matchHistoryRef, matchHistory);
+            
+            const delEmbed = new EmbedBuilder()
+                .setColor('#FF0000')
+                .setTitle('🗑️ Match Log Deleted')
+                .setDescription(`Deleted log: **${deletedMatch.winner}** vs **${deletedMatch.loser}** in **${deletedMatch.leaderboard}**.`)
+                .setFooter({ text: 'Note: You may need to manually fix player stats with /streak or admin commands.' });
+                
+            interaction.editReply({ content: '', embeds: [delEmbed] });
         } catch (error) {
             console.error(error);
             interaction.editReply('❌ Database error.');

@@ -286,12 +286,20 @@ const commands = [
         .setName('logmatch')
         .setDescription('Log a match result to update win rates and match history.')
         .addStringOption(option => 
-            option.setName('winner')
-                .setDescription('The IGN of the winner')
+            option.setName('player1')
+                .setDescription('The IGN of player 1')
+                .setRequired(true))
+        .addIntegerOption(option => 
+            option.setName('score1')
+                .setDescription('Score of player 1')
                 .setRequired(true))
         .addStringOption(option => 
-            option.setName('loser')
-                .setDescription('The IGN of the loser')
+            option.setName('player2')
+                .setDescription('The IGN of player 2')
+                .setRequired(true))
+        .addIntegerOption(option => 
+            option.setName('score2')
+                .setDescription('Score of player 2')
                 .setRequired(true))
         .addStringOption(option => 
             option.setName('leaderboard')
@@ -316,6 +324,15 @@ const commands = [
                     { name: 'Demoted', value: 'Demoted' },
                     { name: 'Stayed', value: 'Stayed' }
                 )),
+
+    new SlashCommandBuilder()
+        .setName('dellogmatch')
+        .setDescription('Delete a match log by its index (1 is newest).')
+        .addIntegerOption(option => 
+            option.setName('index')
+                .setDescription('Index of the match to delete (e.g., 1)')
+                .setRequired(true)
+                .setMinValue(1)),
 
     new SlashCommandBuilder()
         .setName('streak')
