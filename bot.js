@@ -228,6 +228,121 @@ client.on('interactionCreate', async interaction => {
         }
     }
 
+    if (commandName === 'logmatch') {
+        const winner = options.getString('winner');
+        const loser = options.getString('loser');
+        const leaderboard = options.getString('leaderboard');
+        const action = options.getString('action'); // Promoted, Demoted, Stayed
+        
+        await interaction.deferReply();
+        try {
+            const playersRef = ref(db, 'players');
+            const matchHistoryRef = ref(db, 'match_history');
+            const [playersSnapshot, matchSnapshot] = await Promise.all([get(playersRef), get(matchHistoryRef)]);
+            
+            if (!playersSnapshot.exists()) return interaction.editReply('❌ Database is empty.');
+            
+            let players = playersSnapshot.val();
+            players = Array.isArray(players) ? players : Object.values(players);
+            players = players.filter(p => p && p.name && p.stats);
+
+            // Find or create winner
+            let winnerIndex = players.findIndex(p => p.name.toLowerCase() === winner.toLowerCase());
+            if (winnerIndex === -1) {
+                players.push({ name: winner, stats: {}, region: 'AS', wins: 0, losses: 0, streak: 0 });
+                winnerIndex = players.length - 1;
+            }
+            
+            // Find or create loser
+            let loserIndex = players.findIndex(p => p.name.toLowerCase() === loser.toLowerCase());
+            if (loserIndex === -1) {
+                players.push({ name: loser, stats: {}, region: 'AS', wins: 0, losses: 0, streak: 0 });
+                loserIndex = players.length - 1;
+            }
+
+            // Update Winner Stats
+            players[winnerIndex].wins = (players[winnerIndex].wins || 0) + 1;
+            players[winnerIndex].streak = (players[winnerIndex].streak || 0) + 1;
+
+            // Update Loser Stats
+            players[loserIndex].losses = (players[loserIndex].losses || 0) + 1;
+            players[loserIndex].streak = 0; // Reset streak
+
+            // Save players
+            await set(playersRef, players);
+
+            // Update Match History
+            let matchHistory = [];
+            if (matchSnapshot.exists()) {
+                let data = matchSnapshot.val();
+                matchHistory = Array.isArray(data) ? data : Object.values(data);
+            }
+            
+            const newMatch = {
+                timestamp: Date.now(),
+                winner: players[winnerIndex].name,
+                loser: players[loserIndex].name,
+                leaderboard: leaderboard,
+                action: action
+            };
+            
+            matchHistory.unshift(newMatch);
+            // Keep only last 50 matches to save space
+            if (matchHistory.length > 50) matchHistory = matchHistory.slice(0, 50);
+            
+            await set(matchHistoryRef, matchHistory);
+
+            const matchEmbed = new EmbedBuilder()
+                .setColor('#00FF00')
+                .setTitle('⚔️ Match Result Logged')
+                .setDescription(`**${players[winnerIndex].name}** defeated **${players[loserIndex].name}** in **${leaderboard.toUpperCase()}**!`)
+                .addFields(
+                    { name: 'Winner Stats', value: `Wins: ${players[winnerIndex].wins} | Streak: 🔥 ${players[winnerIndex].streak}`, inline: true },
+                    { name: 'Loser Stats', value: `Losses: ${players[loserIndex].losses} | Streak: ❄️ 0`, inline: true },
+                    { name: 'Result', value: `${action}`, inline: false }
+                )
+                .setFooter({ text: 'Ascension Bot • Match System' })
+                .setTimestamp();
+
+            interaction.editReply({ content: '', embeds: [matchEmbed] });
+        } catch (error) {
+            console.error(error);
+            interaction.editReply('❌ Database error.');
+        }
+    }
+
+    if (commandName === 'streak') {
+        const ign = options.getString('ign');
+        const setStreak = options.getInteger('set_streak');
+        
+        await interaction.deferReply();
+        try {
+            const playersRef = ref(db, 'players');
+            const snapshot = await get(playersRef);
+            if (!snapshot.exists()) return interaction.editReply('❌ Database is empty.');
+            
+            let players = snapshot.val();
+            players = Array.isArray(players) ? players : Object.values(players);
+            players = players.filter(p => p && p.name && p.stats);
+
+            let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
+            if (playerIndex === -1) {
+                return interaction.editReply(`❌ Player **${ign}** not found in the database.`);
+            }
+
+            if (setStreak !== null) {
+                players[playerIndex].streak = setStreak;
+                await set(playersRef, players);
+                interaction.editReply(`✅ Set **${players[playerIndex].name}**'s streak to 🔥 **${setStreak}**.`);
+            } else {
+                const currentStreak = players[playerIndex].streak || 0;
+                interaction.editReply(`🔥 **${players[playerIndex].name}**'s current win streak is **${currentStreak}**.`);
+            }
+        } catch (error) {
+            interaction.editReply('❌ Database error.');
+        }
+    }
+
     if (commandName === 'leaderboard') {
         await interaction.deferReply();
         try {

@@ -283,6 +283,53 @@ const commands = [
                 )),
 
     new SlashCommandBuilder()
+        .setName('logmatch')
+        .setDescription('Log a match result to update win rates and match history.')
+        .addStringOption(option => 
+            option.setName('winner')
+                .setDescription('The IGN of the winner')
+                .setRequired(true))
+        .addStringOption(option => 
+            option.setName('loser')
+                .setDescription('The IGN of the loser')
+                .setRequired(true))
+        .addStringOption(option => 
+            option.setName('leaderboard')
+                .setDescription('Select Leaderboard')
+                .setRequired(true)
+                .addChoices(
+                    { name: 'Sword', value: 'sword' },
+                    { name: 'Axe', value: 'axe' },
+                    { name: 'Mace', value: 'mace' },
+                    { name: 'UHC', value: 'uhc' },
+                    { name: 'Vanilla', value: 'vanilla' },
+                    { name: 'Pot', value: 'pot' },
+                    { name: 'Nethpot', value: 'nethop' },
+                    { name: 'SMP', value: 'smp' }
+                ))
+        .addStringOption(option => 
+            option.setName('action')
+                .setDescription('Result of the match (for history log)')
+                .setRequired(true)
+                .addChoices(
+                    { name: 'Promoted', value: 'Promoted' },
+                    { name: 'Demoted', value: 'Demoted' },
+                    { name: 'Stayed', value: 'Stayed' }
+                )),
+
+    new SlashCommandBuilder()
+        .setName('streak')
+        .setDescription('Check or set a win streak for a player.')
+        .addStringOption(option => 
+            option.setName('ign')
+                .setDescription('The IGN of the player')
+                .setRequired(true))
+        .addIntegerOption(option => 
+            option.setName('set_streak')
+                .setDescription('Force set the streak to a number (admin)')
+                .setRequired(false)),
+
+    new SlashCommandBuilder()
         .setName('leaderboard')
         .setDescription('View the interactive leaderboard')
 
