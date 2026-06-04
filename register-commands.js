@@ -239,12 +239,6 @@ const commands = [
             option.setName('ign')
                 .setDescription('The IGN of the player')
                 .setRequired(true))
-        .addIntegerOption(option => 
-            option.setName('rank')
-                .setDescription('Peak rank (e.g., 1)')
-                .setRequired(true)
-                .setMinValue(1)
-                .setMaxValue(5))
         .addStringOption(option => 
             option.setName('leaderboard')
                 .setDescription('Select Leaderboard')
@@ -258,7 +252,13 @@ const commands = [
                     { name: 'Pot', value: 'pot' },
                     { name: 'Nethpot', value: 'nethop' },
                     { name: 'SMP', value: 'smp' }
-                )),
+                ))
+        .addIntegerOption(option => 
+            option.setName('rank')
+                .setDescription('Peak rank (e.g., 1)')
+                .setRequired(true)
+                .setMinValue(1)
+                .setMaxValue(5)),
                 
     new SlashCommandBuilder()
         .setName('unpeak')
