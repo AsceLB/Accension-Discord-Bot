@@ -173,18 +173,7 @@ client.on('interactionCreate', async interaction => {
             }
 
             let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
-            let oldRank = (playerIndex !== -1 && typeof players[playerIndex].stats[leaderboard] === 'number') 
-                          ? players[playerIndex].stats[leaderboard] : 999;
-            
-            players.forEach(p => {
-                let r = p.stats[leaderboard];
-                if (typeof r === 'number') {
-                    if (r >= position && r < oldRank) {
-                        if (r < 5) p.stats[leaderboard] = r + 1;
-                        else delete p.stats[leaderboard];
-                    }
-                }
-            });
+            // Rank shifting removed to allow multiple players per rank
             players = players.filter(p => Object.keys(p.stats).length > 0);
             
             playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
@@ -368,22 +357,7 @@ client.on('interactionCreate', async interaction => {
             players = players.filter(p => p && p.name && p.stats);
 
             let pIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
-            let oldRank = (pIndex !== -1 && typeof players[pIndex].stats[leaderboard] === 'number') 
-                          ? players[pIndex].stats[leaderboard] : 999;
-
-            // Shift active players down
-            players.forEach(p => {
-                let r = p.stats[leaderboard];
-                if (typeof r === 'number') {
-                    if (r >= newRank && r < oldRank) {
-                        if (r < 5) {
-                            p.stats[leaderboard] = r + 1;
-                        } else {
-                            delete p.stats[leaderboard];
-                        }
-                    }
-                }
-            });
+            // Rank shifting removed to allow multiple players per rank
 
             // Clean up players with empty stats
             players = players.filter(p => Object.keys(p.stats).length > 0);
@@ -403,7 +377,7 @@ client.on('interactionCreate', async interaction => {
                 .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                 .setTitle('⬆️ Player Promoted')
                 .setThumbnail(avatarUrl)
-                .setDescription(`**\`${ign}\`** was PROMOTED to **#${newRank}** in **${leaderboard.toUpperCase()}**.\n> Existing players shifted down!`)
+                .setDescription(`**\`${ign}\`** was PROMOTED to **#${newRank}** in **${leaderboard.toUpperCase()}**.`)
                 .setFooter({ text: 'Ascension Bot • System Update' })
                 .setTimestamp();
             interaction.editReply({ content: '', embeds: [embed] });
@@ -429,15 +403,7 @@ client.on('interactionCreate', async interaction => {
             if (pIndex !== -1 && typeof players[pIndex].stats[leaderboard] === 'number') {
                 let oldRank = players[pIndex].stats[leaderboard];
                 
-                // Shift active players up
-                players.forEach(p => {
-                    let r = p.stats[leaderboard];
-                    if (typeof r === 'number') {
-                        if (r > oldRank && r <= newRank) {
-                            p.stats[leaderboard] = r - 1;
-                        }
-                    }
-                });
+                // Rank shifting removed to allow multiple players per rank
 
                 players[pIndex].stats[leaderboard] = newRank;
                 players = players.filter(p => Object.keys(p.stats).length > 0);
@@ -448,7 +414,7 @@ client.on('interactionCreate', async interaction => {
                     .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                     .setTitle('⬇️ Player Demoted')
                     .setThumbnail(avatarUrl)
-                    .setDescription(`**\`${ign}\`** was DEMOTED to **#${newRank}** in **${leaderboard.toUpperCase()}**.\n> Existing players shifted up!`)
+                    .setDescription(`**\`${ign}\`** was DEMOTED to **#${newRank}** in **${leaderboard.toUpperCase()}**.`)
                     .setFooter({ text: 'Ascension Bot • System Update' })
                     .setTimestamp();
                 interaction.editReply({ content: '', embeds: [embed] });
