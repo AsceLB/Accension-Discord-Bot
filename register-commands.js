@@ -344,7 +344,23 @@ const commands = [
         .addIntegerOption(option => 
             option.setName('set_streak')
                 .setDescription('Force set the streak to a number (admin)')
+                .setRequired(false))
+        .addIntegerOption(option => 
+            option.setName('add_streak')
+                .setDescription('Add a number to the current streak')
                 .setRequired(false)),
+
+    new SlashCommandBuilder()
+        .setName('addwin')
+        .setDescription('Add wins to a player manually.')
+        .addStringOption(option => option.setName('ign').setDescription('IGN of the player').setRequired(true))
+        .addIntegerOption(option => option.setName('amount').setDescription('Amount of wins to add').setRequired(true)),
+        
+    new SlashCommandBuilder()
+        .setName('addloss')
+        .setDescription('Add losses to a player manually.')
+        .addStringOption(option => option.setName('ign').setDescription('IGN of the player').setRequired(true))
+        .addIntegerOption(option => option.setName('amount').setDescription('Amount of losses to add').setRequired(true)),
 
     new SlashCommandBuilder()
         .setName('leaderboard')

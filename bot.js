@@ -365,6 +365,7 @@ client.on('interactionCreate', async interaction => {
     if (commandName === 'streak') {
         const ign = options.getString('ign');
         const setStreak = options.getInteger('set_streak');
+        const addStreak = options.getInteger('add_streak');
         
         await interaction.deferReply();
         try {
@@ -385,10 +386,70 @@ client.on('interactionCreate', async interaction => {
                 players[playerIndex].streak = setStreak;
                 await set(playersRef, players);
                 interaction.editReply(`✅ Set **${players[playerIndex].name}**'s streak to 🔥 **${setStreak}**.`);
+            } else if (addStreak !== null) {
+                players[playerIndex].streak = (players[playerIndex].streak || 0) + addStreak;
+                await set(playersRef, players);
+                interaction.editReply(`✅ Added ${addStreak} to **${players[playerIndex].name}**'s streak. Current streak is 🔥 **${players[playerIndex].streak}**.`);
             } else {
                 const currentStreak = players[playerIndex].streak || 0;
                 interaction.editReply(`🔥 **${players[playerIndex].name}**'s current win streak is **${currentStreak}**.`);
             }
+        } catch (error) {
+            interaction.editReply('❌ Database error.');
+        }
+    }
+
+    if (commandName === 'addwin') {
+        const ign = options.getString('ign');
+        const amount = options.getInteger('amount');
+        
+        await interaction.deferReply();
+        try {
+            const playersRef = ref(db, 'players');
+            const snapshot = await get(playersRef);
+            if (!snapshot.exists()) return interaction.editReply('❌ Database is empty.');
+            
+            let players = snapshot.val();
+            players = Array.isArray(players) ? players : Object.values(players);
+            players = players.filter(p => p && p.name && p.stats);
+
+            let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
+            if (playerIndex === -1) {
+                return interaction.editReply(`❌ Player **${ign}** not found in the database.`);
+            }
+
+            players[playerIndex].wins = (players[playerIndex].wins || 0) + amount;
+            await set(playersRef, players);
+            
+            interaction.editReply(`✅ Added ${amount} wins to **${players[playerIndex].name}**. Total wins: **${players[playerIndex].wins}**.`);
+        } catch (error) {
+            interaction.editReply('❌ Database error.');
+        }
+    }
+
+    if (commandName === 'addloss') {
+        const ign = options.getString('ign');
+        const amount = options.getInteger('amount');
+        
+        await interaction.deferReply();
+        try {
+            const playersRef = ref(db, 'players');
+            const snapshot = await get(playersRef);
+            if (!snapshot.exists()) return interaction.editReply('❌ Database is empty.');
+            
+            let players = snapshot.val();
+            players = Array.isArray(players) ? players : Object.values(players);
+            players = players.filter(p => p && p.name && p.stats);
+
+            let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
+            if (playerIndex === -1) {
+                return interaction.editReply(`❌ Player **${ign}** not found in the database.`);
+            }
+
+            players[playerIndex].losses = (players[playerIndex].losses || 0) + amount;
+            await set(playersRef, players);
+            
+            interaction.editReply(`✅ Added ${amount} losses to **${players[playerIndex].name}**. Total losses: **${players[playerIndex].losses}**.`);
         } catch (error) {
             interaction.editReply('❌ Database error.');
         }
