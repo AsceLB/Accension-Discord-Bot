@@ -141,6 +141,93 @@ client.on('interactionCreate', async interaction => {
         return interaction.reply({ content: '❌ You do not have permission to use this command.', ephemeral: true });
     }
 
+    if (commandName === 'peak') {
+        const ign = options.getString('ign');
+        const rank = options.getInteger('rank');
+        const leaderboard = options.getString('leaderboard');
+        
+        await interaction.deferReply();
+        try {
+            const playersRef = ref(db, 'players');
+            const snapshot = await get(playersRef);
+            if (!snapshot.exists()) return interaction.editReply('❌ Database is empty.');
+            
+            let players = snapshot.val();
+            players = Array.isArray(players) ? players : Object.values(players);
+            players = players.filter(p => p && p.name && p.stats);
+
+            let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
+            if (playerIndex !== -1 && players[playerIndex].stats[leaderboard]) {
+                players[playerIndex].peaks = players[playerIndex].peaks || {};
+                players[playerIndex].peaks[leaderboard] = rank;
+                
+                await set(playersRef, players);
+                
+                const avatarUrl = `https://mc-heads.net/avatar/${ign}/200`;
+                const peakEmbed = new EmbedBuilder()
+                    .setColor('#FF00FF')
+                    .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+                    .setTitle('✨ Peak Rank Set')
+                    .setDescription(`**${ign}**'s peak rank in **${leaderboard.toUpperCase()}** is now set to **#${rank}**.`)
+                    .setThumbnail(avatarUrl)
+                    .addFields(
+                        { name: 'Mode', value: `**${leaderboard.toUpperCase()}**`, inline: true },
+                        { name: 'Peak Rank', value: `**#${rank}**`, inline: true }
+                    )
+                    .setFooter({ text: 'Ascension Bot • System Update' })
+                    .setTimestamp();
+                    
+                interaction.editReply({ content: '', embeds: [peakEmbed] });
+            } else {
+                interaction.editReply(`⚠️ Player **${ign}** not found or no active rank in **${leaderboard}**.`);
+            }
+        } catch (error) {
+            interaction.editReply('❌ Database error.');
+        }
+    }
+
+    if (commandName === 'unpeak') {
+        const ign = options.getString('ign');
+        const leaderboard = options.getString('leaderboard');
+        
+        await interaction.deferReply();
+        try {
+            const playersRef = ref(db, 'players');
+            const snapshot = await get(playersRef);
+            if (!snapshot.exists()) return interaction.editReply('❌ Database is empty.');
+            
+            let players = snapshot.val();
+            players = Array.isArray(players) ? players : Object.values(players);
+            players = players.filter(p => p && p.name && p.stats);
+
+            let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
+            if (playerIndex !== -1 && players[playerIndex].peaks && players[playerIndex].peaks[leaderboard]) {
+                delete players[playerIndex].peaks[leaderboard];
+                
+                await set(playersRef, players);
+                
+                const avatarUrl = `https://mc-heads.net/avatar/${ign}/200`;
+                const unpeakEmbed = new EmbedBuilder()
+                    .setColor('#FF00FF')
+                    .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+                    .setTitle('🧹 Peak Rank Removed')
+                    .setDescription(`**${ign}**'s peak rank in **${leaderboard.toUpperCase()}** has been removed.`)
+                    .setThumbnail(avatarUrl)
+                    .addFields(
+                        { name: 'Mode', value: `**${leaderboard.toUpperCase()}**`, inline: true }
+                    )
+                    .setFooter({ text: 'Ascension Bot • System Update' })
+                    .setTimestamp();
+                    
+                interaction.editReply({ content: '', embeds: [unpeakEmbed] });
+            } else {
+                interaction.editReply(`⚠️ Player **${ign}** does not have a peak rank in **${leaderboard}**.`);
+            }
+        } catch (error) {
+            interaction.editReply('❌ Database error.');
+        }
+    }
+
     if (commandName === 'leaderboard') {
         await interaction.deferReply();
         try {
@@ -272,6 +359,9 @@ client.on('interactionCreate', async interaction => {
 
             if (players[playerIndex].stats[leaderboard]) {
                 delete players[playerIndex].stats[leaderboard];
+                if (players[playerIndex].peaks && players[playerIndex].peaks[leaderboard]) {
+                    delete players[playerIndex].peaks[leaderboard];
+                }
                 
                 players = players.filter(p => Object.keys(p.stats).length > 0);
                 await set(playersRef, players);

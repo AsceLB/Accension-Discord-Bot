@@ -233,6 +233,56 @@ const commands = [
                 )),
                 
     new SlashCommandBuilder()
+        .setName('peak')
+        .setDescription('Set a peak rank for a player.')
+        .addStringOption(option => 
+            option.setName('ign')
+                .setDescription('The IGN of the player')
+                .setRequired(true))
+        .addIntegerOption(option => 
+            option.setName('rank')
+                .setDescription('Peak rank (e.g., 1)')
+                .setRequired(true)
+                .setMinValue(1)
+                .setMaxValue(5))
+        .addStringOption(option => 
+            option.setName('leaderboard')
+                .setDescription('Select Leaderboard')
+                .setRequired(true)
+                .addChoices(
+                    { name: 'Sword', value: 'sword' },
+                    { name: 'Axe', value: 'axe' },
+                    { name: 'Mace', value: 'mace' },
+                    { name: 'UHC', value: 'uhc' },
+                    { name: 'Vanilla', value: 'vanilla' },
+                    { name: 'Pot', value: 'pot' },
+                    { name: 'Nethpot', value: 'nethop' },
+                    { name: 'SMP', value: 'smp' }
+                )),
+                
+    new SlashCommandBuilder()
+        .setName('unpeak')
+        .setDescription('Remove the peak rank from a player.')
+        .addStringOption(option => 
+            option.setName('ign')
+                .setDescription('The IGN of the player')
+                .setRequired(true))
+        .addStringOption(option => 
+            option.setName('leaderboard')
+                .setDescription('Select Leaderboard')
+                .setRequired(true)
+                .addChoices(
+                    { name: 'Sword', value: 'sword' },
+                    { name: 'Axe', value: 'axe' },
+                    { name: 'Mace', value: 'mace' },
+                    { name: 'UHC', value: 'uhc' },
+                    { name: 'Vanilla', value: 'vanilla' },
+                    { name: 'Pot', value: 'pot' },
+                    { name: 'Nethpot', value: 'nethop' },
+                    { name: 'SMP', value: 'smp' }
+                )),
+
+    new SlashCommandBuilder()
         .setName('leaderboard')
         .setDescription('View the interactive leaderboard')
 
