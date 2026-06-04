@@ -116,14 +116,11 @@ async function buildLeaderboardMessage() {
 }
 
 client.on('interactionCreate', async interaction => {
-
-    if (!interaction.isChatInputCommand()) return;
-
     const ADMIN_IDS = ['760539503211053057', '1406613103499677746', '1243137908613840958'];
     const ADMIN_ROLES = ['1493227708446937158', '1483019761091612815'];
-    const { commandName, options, user, member } = interaction;
-
+    
     let hasAccess = false;
+    const { user, member } = interaction;
     
     // Check User ID
     if (user && ADMIN_IDS.includes(user.id)) {
@@ -140,6 +137,60 @@ client.on('interactionCreate', async interaction => {
     if (!hasAccess) {
         return interaction.reply({ content: '❌ You do not have permission to use this command.', ephemeral: true });
     }
+
+    if (interaction.isStringSelectMenu()) {
+        if (interaction.customId === 'select_delete_match') {
+            const timestamp = parseInt(interaction.values[0]);
+            
+            await interaction.deferReply();
+            try {
+                const matchHistoryRef = ref(db, 'match_history');
+                const playersRef = ref(db, 'players');
+                const [matchSnapshot, playersSnapshot] = await Promise.all([get(matchHistoryRef), get(playersRef)]);
+                
+                if (!matchSnapshot.exists() || !playersSnapshot.exists()) return interaction.editReply('❌ Database error.');
+                
+                let matchHistory = matchSnapshot.val();
+                matchHistory = Array.isArray(matchHistory) ? matchHistory : Object.values(matchHistory);
+                
+                const matchIndex = matchHistory.findIndex(m => m.timestamp === timestamp);
+                if (matchIndex === -1) return interaction.editReply('❌ Match not found. It may have already been deleted.');
+                
+                const deletedMatch = matchHistory.splice(matchIndex, 1)[0];
+                
+                let players = playersSnapshot.val();
+                players = Array.isArray(players) ? players : Object.values(players);
+                
+                const winnerIndex = players.findIndex(p => p.name.toLowerCase() === deletedMatch.winner.toLowerCase());
+                const loserIndex = players.findIndex(p => p.name.toLowerCase() === deletedMatch.loser.toLowerCase());
+                
+                if (winnerIndex !== -1) {
+                    players[winnerIndex].wins = Math.max(0, (players[winnerIndex].wins || 0) - 1);
+                }
+                if (loserIndex !== -1) {
+                    players[loserIndex].losses = Math.max(0, (players[loserIndex].losses || 0) - 1);
+                }
+                
+                await Promise.all([set(matchHistoryRef, matchHistory), set(playersRef, players)]);
+                
+                const delEmbed = new EmbedBuilder()
+                    .setColor('#FF0000')
+                    .setTitle('🗑️ Match Log Deleted & Stats Reverted')
+                    .setDescription(`Deleted log: **${deletedMatch.winner}** vs **${deletedMatch.loser}** in **${deletedMatch.leaderboard}**.\n\n-1 Win for **${deletedMatch.winner}**\n-1 Loss for **${deletedMatch.loser}**`)
+                    .setFooter({ text: 'Note: Win Streaks are not reverted automatically.' });
+                    
+                interaction.editReply({ content: '', embeds: [delEmbed], components: [] });
+            } catch (error) {
+                console.error(error);
+                interaction.editReply('❌ Error deleting match.');
+            }
+        }
+        return;
+    }
+
+    if (!interaction.isChatInputCommand()) return;
+
+    const { commandName, options } = interaction;
 
     if (commandName === 'peak') {
         const ign = options.getString('ign');
@@ -330,8 +381,6 @@ client.on('interactionCreate', async interaction => {
     }
 
     if (commandName === 'dellogmatch') {
-        const index = options.getInteger('index');
-        
         await interaction.deferReply();
         try {
             const matchHistoryRef = ref(db, 'match_history');
@@ -342,20 +391,27 @@ client.on('interactionCreate', async interaction => {
             let matchHistory = matchSnapshot.val();
             matchHistory = Array.isArray(matchHistory) ? matchHistory : Object.values(matchHistory);
             
-            if (index < 1 || index > matchHistory.length) {
-                return interaction.editReply(`❌ Invalid index. Please provide a number between 1 and ${matchHistory.length}.`);
-            }
+            if (matchHistory.length === 0) return interaction.editReply('❌ No match history found.');
             
-            const deletedMatch = matchHistory.splice(index - 1, 1)[0];
-            await set(matchHistoryRef, matchHistory);
+            // Get up to 25 matches for Discord select menu limit
+            const recentMatches = matchHistory.slice(0, 25);
             
-            const delEmbed = new EmbedBuilder()
-                .setColor('#FF0000')
-                .setTitle('🗑️ Match Log Deleted')
-                .setDescription(`Deleted log: **${deletedMatch.winner}** vs **${deletedMatch.loser}** in **${deletedMatch.leaderboard}**.`)
-                .setFooter({ text: 'Note: You may need to manually fix player stats with /streak or admin commands.' });
+            const selectMenu = new StringSelectMenuBuilder()
+                .setCustomId('select_delete_match')
+                .setPlaceholder('Select a match to delete and revert')
+                .addOptions(recentMatches.map(m => {
+                    let scoreText = (m.scoreWinner !== undefined && m.scoreLoser !== undefined) ? ` (${m.scoreWinner}-${m.scoreLoser})` : '';
+                    const labelText = `${m.winner} vs ${m.loser}${scoreText}`;
+                    
+                    return new StringSelectMenuOptionBuilder()
+                        .setLabel(labelText.substring(0, 100))
+                        .setDescription(`${m.leaderboard} - ${new Date(m.timestamp).toLocaleString()}`.substring(0, 100))
+                        .setValue(m.timestamp.toString());
+                }));
                 
-            interaction.editReply({ content: '', embeds: [delEmbed] });
+            const row = new ActionRowBuilder().addComponents(selectMenu);
+            
+            interaction.editReply({ content: '🗑️ **Select a match to delete**. This will also revert 1 Win/Loss.', components: [row] });
         } catch (error) {
             console.error(error);
             interaction.editReply('❌ Database error.');
@@ -399,7 +455,7 @@ client.on('interactionCreate', async interaction => {
         }
     }
 
-    if (commandName === 'addwin') {
+    if (commandName === 'setwin') {
         const ign = options.getString('ign');
         const amount = options.getInteger('amount');
         
@@ -418,16 +474,16 @@ client.on('interactionCreate', async interaction => {
                 return interaction.editReply(`❌ Player **${ign}** not found in the database.`);
             }
 
-            players[playerIndex].wins = (players[playerIndex].wins || 0) + amount;
+            players[playerIndex].wins = amount;
             await set(playersRef, players);
             
-            interaction.editReply(`✅ Added ${amount} wins to **${players[playerIndex].name}**. Total wins: **${players[playerIndex].wins}**.`);
+            interaction.editReply(`✅ Set **${players[playerIndex].name}**'s wins to **${players[playerIndex].wins}**.`);
         } catch (error) {
             interaction.editReply('❌ Database error.');
         }
     }
 
-    if (commandName === 'addloss') {
+    if (commandName === 'setloss') {
         const ign = options.getString('ign');
         const amount = options.getInteger('amount');
         
@@ -446,10 +502,10 @@ client.on('interactionCreate', async interaction => {
                 return interaction.editReply(`❌ Player **${ign}** not found in the database.`);
             }
 
-            players[playerIndex].losses = (players[playerIndex].losses || 0) + amount;
+            players[playerIndex].losses = amount;
             await set(playersRef, players);
             
-            interaction.editReply(`✅ Added ${amount} losses to **${players[playerIndex].name}**. Total losses: **${players[playerIndex].losses}**.`);
+            interaction.editReply(`✅ Set **${players[playerIndex].name}**'s losses to **${players[playerIndex].losses}**.`);
         } catch (error) {
             interaction.editReply('❌ Database error.');
         }

@@ -327,12 +327,7 @@ const commands = [
 
     new SlashCommandBuilder()
         .setName('dellogmatch')
-        .setDescription('Delete a match log by its index (1 is newest).')
-        .addIntegerOption(option => 
-            option.setName('index')
-                .setDescription('Index of the match to delete (e.g., 1)')
-                .setRequired(true)
-                .setMinValue(1)),
+        .setDescription('Delete a match log from an interactive menu.'),
 
     new SlashCommandBuilder()
         .setName('streak')
@@ -351,16 +346,16 @@ const commands = [
                 .setRequired(false)),
 
     new SlashCommandBuilder()
-        .setName('addwin')
-        .setDescription('Add wins to a player manually.')
+        .setName('setwin')
+        .setDescription('Set total wins for a player.')
         .addStringOption(option => option.setName('ign').setDescription('IGN of the player').setRequired(true))
-        .addIntegerOption(option => option.setName('amount').setDescription('Amount of wins to add').setRequired(true)),
+        .addIntegerOption(option => option.setName('amount').setDescription('Exact amount of wins').setRequired(true)),
         
     new SlashCommandBuilder()
-        .setName('addloss')
-        .setDescription('Add losses to a player manually.')
+        .setName('setloss')
+        .setDescription('Set total losses for a player.')
         .addStringOption(option => option.setName('ign').setDescription('IGN of the player').setRequired(true))
-        .addIntegerOption(option => option.setName('amount').setDescription('Amount of losses to add').setRequired(true)),
+        .addIntegerOption(option => option.setName('amount').setDescription('Exact amount of losses').setRequired(true)),
 
     new SlashCommandBuilder()
         .setName('leaderboard')
