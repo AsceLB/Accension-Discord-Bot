@@ -330,32 +330,28 @@ const commands = [
         .setDescription('Delete a match log from an interactive menu.'),
 
     new SlashCommandBuilder()
-        .setName('streak')
-        .setDescription('Check or set a win streak for a player.')
-        .addStringOption(option => 
-            option.setName('ign')
-                .setDescription('The IGN of the player')
-                .setRequired(true))
-        .addIntegerOption(option => 
-            option.setName('set_streak')
-                .setDescription('Force set the streak to a number (admin)')
-                .setRequired(false))
-        .addIntegerOption(option => 
-            option.setName('add_streak')
-                .setDescription('Add a number to the current streak')
-                .setRequired(false)),
+        .setName('setstreak')
+        .setDescription('Set a win streak for a player.')
+        .addStringOption(option => option.setName('ign').setDescription('The IGN of the player').setRequired(true))
+        .addIntegerOption(option => option.setName('amount').setDescription('The streak amount').setRequired(true)),
 
     new SlashCommandBuilder()
-        .setName('setwin')
-        .setDescription('Set total wins for a player.')
+        .setName('addstreak')
+        .setDescription('Add to a win streak for a player.')
+        .addStringOption(option => option.setName('ign').setDescription('The IGN of the player').setRequired(true))
+        .addIntegerOption(option => option.setName('amount').setDescription('Amount to add').setRequired(true)),
+
+    new SlashCommandBuilder()
+        .setName('setwinrate')
+        .setDescription('Set win rate (%) for a player.')
         .addStringOption(option => option.setName('ign').setDescription('IGN of the player').setRequired(true))
-        .addIntegerOption(option => option.setName('amount').setDescription('Exact amount of wins').setRequired(true)),
+        .addIntegerOption(option => option.setName('percent').setDescription('Win rate percentage (0-100)').setRequired(true).setMinValue(0).setMaxValue(100)),
         
     new SlashCommandBuilder()
-        .setName('setloss')
-        .setDescription('Set total losses for a player.')
+        .setName('setmatch')
+        .setDescription('Set total matches for a player.')
         .addStringOption(option => option.setName('ign').setDescription('IGN of the player').setRequired(true))
-        .addIntegerOption(option => option.setName('amount').setDescription('Exact amount of losses').setRequired(true)),
+        .addIntegerOption(option => option.setName('amount').setDescription('Exact amount of matches').setRequired(true).setMinValue(0)),
 
     new SlashCommandBuilder()
         .setName('leaderboard')

@@ -418,44 +418,7 @@ client.on('interactionCreate', async interaction => {
         }
     }
 
-    if (commandName === 'streak') {
-        const ign = options.getString('ign');
-        const setStreak = options.getInteger('set_streak');
-        const addStreak = options.getInteger('add_streak');
-        
-        await interaction.deferReply();
-        try {
-            const playersRef = ref(db, 'players');
-            const snapshot = await get(playersRef);
-            if (!snapshot.exists()) return interaction.editReply('❌ Database is empty.');
-            
-            let players = snapshot.val();
-            players = Array.isArray(players) ? players : Object.values(players);
-            players = players.filter(p => p && p.name && p.stats);
-
-            let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
-            if (playerIndex === -1) {
-                return interaction.editReply(`❌ Player **${ign}** not found in the database.`);
-            }
-
-            if (setStreak !== null) {
-                players[playerIndex].streak = setStreak;
-                await set(playersRef, players);
-                interaction.editReply(`✅ Set **${players[playerIndex].name}**'s streak to 🔥 **${setStreak}**.`);
-            } else if (addStreak !== null) {
-                players[playerIndex].streak = (players[playerIndex].streak || 0) + addStreak;
-                await set(playersRef, players);
-                interaction.editReply(`✅ Added ${addStreak} to **${players[playerIndex].name}**'s streak. Current streak is 🔥 **${players[playerIndex].streak}**.`);
-            } else {
-                const currentStreak = players[playerIndex].streak || 0;
-                interaction.editReply(`🔥 **${players[playerIndex].name}**'s current win streak is **${currentStreak}**.`);
-            }
-        } catch (error) {
-            interaction.editReply('❌ Database error.');
-        }
-    }
-
-    if (commandName === 'setwin') {
+    if (commandName === 'setstreak') {
         const ign = options.getString('ign');
         const amount = options.getInteger('amount');
         
@@ -474,16 +437,15 @@ client.on('interactionCreate', async interaction => {
                 return interaction.editReply(`❌ Player **${ign}** not found in the database.`);
             }
 
-            players[playerIndex].wins = amount;
+            players[playerIndex].streak = amount;
             await set(playersRef, players);
-            
-            interaction.editReply(`✅ Set **${players[playerIndex].name}**'s wins to **${players[playerIndex].wins}**.`);
+            interaction.editReply(`✅ Set **${players[playerIndex].name}**'s streak to 🔥 **${amount}**.`);
         } catch (error) {
             interaction.editReply('❌ Database error.');
         }
     }
 
-    if (commandName === 'setloss') {
+    if (commandName === 'addstreak') {
         const ign = options.getString('ign');
         const amount = options.getInteger('amount');
         
@@ -502,10 +464,83 @@ client.on('interactionCreate', async interaction => {
                 return interaction.editReply(`❌ Player **${ign}** not found in the database.`);
             }
 
-            players[playerIndex].losses = amount;
+            players[playerIndex].streak = (players[playerIndex].streak || 0) + amount;
+            await set(playersRef, players);
+            interaction.editReply(`✅ Added ${amount} to **${players[playerIndex].name}**'s streak. Current streak is 🔥 **${players[playerIndex].streak}**.`);
+        } catch (error) {
+            interaction.editReply('❌ Database error.');
+        }
+    }
+
+    if (commandName === 'setwinrate') {
+        const ign = options.getString('ign');
+        const percent = options.getInteger('percent');
+        
+        await interaction.deferReply();
+        try {
+            const playersRef = ref(db, 'players');
+            const snapshot = await get(playersRef);
+            if (!snapshot.exists()) return interaction.editReply('❌ Database is empty.');
+            
+            let players = snapshot.val();
+            players = Array.isArray(players) ? players : Object.values(players);
+            players = players.filter(p => p && p.name && p.stats);
+
+            let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
+            if (playerIndex === -1) {
+                return interaction.editReply(`❌ Player **${ign}** not found in the database.`);
+            }
+
+            const totalMatches = (players[playerIndex].wins || 0) + (players[playerIndex].losses || 0);
+            if (totalMatches === 0) {
+                return interaction.editReply(`❌ **${players[playerIndex].name}** has 0 matches. Please set matches first or log a match.`);
+            }
+
+            const newWins = Math.round(totalMatches * (percent / 100));
+            const newLosses = totalMatches - newWins;
+            
+            players[playerIndex].wins = newWins;
+            players[playerIndex].losses = newLosses;
+            
             await set(playersRef, players);
             
-            interaction.editReply(`✅ Set **${players[playerIndex].name}**'s losses to **${players[playerIndex].losses}**.`);
+            interaction.editReply(`✅ Set **${players[playerIndex].name}**'s win rate to **${percent}%**. (Wins: ${newWins}, Losses: ${newLosses})`);
+        } catch (error) {
+            interaction.editReply('❌ Database error.');
+        }
+    }
+
+    if (commandName === 'setmatch') {
+        const ign = options.getString('ign');
+        const amount = options.getInteger('amount');
+        
+        await interaction.deferReply();
+        try {
+            const playersRef = ref(db, 'players');
+            const snapshot = await get(playersRef);
+            if (!snapshot.exists()) return interaction.editReply('❌ Database is empty.');
+            
+            let players = snapshot.val();
+            players = Array.isArray(players) ? players : Object.values(players);
+            players = players.filter(p => p && p.name && p.stats);
+
+            let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
+            if (playerIndex === -1) {
+                return interaction.editReply(`❌ Player **${ign}** not found in the database.`);
+            }
+
+            const totalMatches = (players[playerIndex].wins || 0) + (players[playerIndex].losses || 0);
+            let currentWinRate = totalMatches > 0 ? (players[playerIndex].wins / totalMatches) : 1; // Default to 100% if 0 matches
+            
+            const newWins = Math.round(amount * currentWinRate);
+            const newLosses = amount - newWins;
+
+            players[playerIndex].wins = newWins;
+            players[playerIndex].losses = newLosses;
+            
+            await set(playersRef, players);
+            
+            interaction.editReply(`✅ Set **${players[playerIndex].name}**'s total matches to **${amount}**. (Wins: ${newWins}, Losses: ${newLosses})`);
         } catch (error) {
             interaction.editReply('❌ Database error.');
         }
