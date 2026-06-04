@@ -211,6 +211,28 @@ const commands = [
                 .setRequired(true)),
                 
     new SlashCommandBuilder()
+        .setName('unretire')
+        .setDescription('Unretire a player and restore their rank.')
+        .addStringOption(option => 
+            option.setName('ign')
+                .setDescription('The IGN of the player to unretire')
+                .setRequired(true))
+        .addStringOption(option => 
+            option.setName('leaderboard')
+                .setDescription('Select Leaderboard')
+                .setRequired(true)
+                .addChoices(
+                    { name: 'Sword', value: 'sword' },
+                    { name: 'Axe', value: 'axe' },
+                    { name: 'Mace', value: 'mace' },
+                    { name: 'UHC', value: 'uhc' },
+                    { name: 'Vanilla', value: 'vanilla' },
+                    { name: 'Pot', value: 'pot' },
+                    { name: 'Nethpot', value: 'nethop' },
+                    { name: 'SMP', value: 'smp' }
+                )),
+                
+    new SlashCommandBuilder()
         .setName('leaderboard')
         .setDescription('View the interactive leaderboard')
 

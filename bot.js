@@ -343,6 +343,54 @@ client.on('interactionCreate', async interaction => {
         }
     }
 
+    if (commandName === 'unretire') {
+        const ign = options.getString('ign');
+        const leaderboard = options.getString('leaderboard');
+        
+        await interaction.deferReply();
+        try {
+            const playersRef = ref(db, 'players');
+            const snapshot = await get(playersRef);
+            if (!snapshot.exists()) return interaction.editReply('❌ Database is empty.');
+            
+            let players = snapshot.val();
+            players = Array.isArray(players) ? players : Object.values(players);
+            players = players.filter(p => p && p.name && p.stats);
+
+            let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
+            if (playerIndex !== -1 && players[playerIndex].stats[leaderboard]) {
+                let currentRank = players[playerIndex].stats[leaderboard];
+                if (typeof currentRank === 'string' && currentRank.startsWith('r')) {
+                    let unretiredRank = parseInt(currentRank.substring(1));
+                    players[playerIndex].stats[leaderboard] = unretiredRank;
+                    await set(playersRef, players);
+                    
+                    const avatarUrl = `https://mc-heads.net/avatar/${ign}/200`;
+                    const unretireEmbed = new EmbedBuilder()
+                        .setColor('#F1C40F')
+                        .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+                        .setTitle('✨ Player Unretired')
+                        .setDescription(`**${ign}** is now UNRETIRED in **${leaderboard.toUpperCase()}**.`)
+                        .setThumbnail(avatarUrl)
+                        .addFields(
+                            { name: 'Mode', value: `**${leaderboard.toUpperCase()}**`, inline: true },
+                            { name: 'Restored Rank', value: `**#${unretiredRank}**`, inline: true }
+                        )
+                        .setFooter({ text: 'Ascension Bot • System Update' })
+                        .setTimestamp();
+                        
+                    interaction.editReply({ content: '', embeds: [unretireEmbed] });
+                } else {
+                    interaction.editReply(`⚠️ Player is not retired in this mode.`);
+                }
+            } else {
+                interaction.editReply(`⚠️ Player **${ign}** not found or no active rank in **${leaderboard}**.`);
+            }
+        } catch (error) {
+            interaction.editReply('❌ Database error.');
+        }
+    }
+
     if (commandName === 'promote') {
         const ign = options.getString('ign');
         const leaderboard = options.getString('leaderboard');
