@@ -1025,9 +1025,10 @@ client.on('interactionCreate', async interaction => {
         const color = options.getString('color');
         const imageUrl = options.getString('image_url');
         const borderColor = options.getString('border_color');
+        const effect = options.getString('effect');
         
-        if (!color && !imageUrl && !borderColor) {
-            return interaction.reply({ content: '❌ You must provide at least a background color, an image URL, or a border color.', ephemeral: true });
+        if (!color && !imageUrl && !borderColor && !effect) {
+            return interaction.reply({ content: '❌ You must provide at least a background color, an image URL, a border color, or a particle effect.', ephemeral: true });
         }
         
         const background = imageUrl || color;
@@ -1060,6 +1061,14 @@ client.on('interactionCreate', async interaction => {
                         delete players[playerIndex].border;
                     } else {
                         players[playerIndex].border = borderColor;
+                    }
+                }
+                
+                if (effect) {
+                    if (effect === 'reset') {
+                        delete players[playerIndex].effect;
+                    } else {
+                        players[playerIndex].effect = effect;
                     }
                 }
                 

@@ -393,6 +393,19 @@ const commands = [
                 ))
         .addStringOption(option => option.setName('image_url').setDescription('Or paste a custom image URL').setRequired(false))
         .addStringOption(option => 
+            option.setName('effect')
+                .setDescription('Select an animated particle effect')
+                .setRequired(false)
+                .addChoices(
+                    { name: 'Default (Reset)', value: 'reset' },
+                    { name: 'Snow (Falling Snow)', value: 'snow' },
+                    { name: 'Embers (Floating Fire)', value: 'embers' },
+                    { name: 'Stars (Starfield)', value: 'stars' },
+                    { name: 'Matrix (Code Rain)', value: 'matrix' },
+                    { name: 'Bubbles (Floating Orbs)', value: 'bubbles' },
+                    { name: 'Fireflies (Glowing Orbs)', value: 'fireflies' }
+                ))
+        .addStringOption(option => 
             option.setName('border_color')
                 .setDescription('Select a preset neon border color')
                 .setRequired(false)
