@@ -1020,6 +1020,43 @@ client.on('interactionCreate', async interaction => {
             interaction.editReply('❌ Database error.');
         }
     }
+    if (commandName === 'customprofile') {
+        const ign = options.getString('ign');
+        const background = options.getString('background');
+
+        await interaction.deferReply();
+        try {
+            const playersRef = ref(db, 'players');
+            const snapshot = await get(playersRef);
+            if (!snapshot.exists()) {
+                return interaction.editReply('❌ Database is empty.');
+            }
+
+            let players = snapshot.val();
+            players = Array.isArray(players) ? players : Object.values(players);
+            players = players.filter(p => p && p.name && p.stats);
+
+            let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
+            
+            if (playerIndex !== -1) {
+                players[playerIndex].background = background;
+                await set(playersRef, players);
+                
+                const embed = new EmbedBuilder()
+                    .setTitle('🎨 Custom Profile Updated!')
+                    .setDescription(`**${players[playerIndex].name}**'s profile background has been updated.`)
+                    .setColor('#00e5ff');
+
+                return interaction.editReply({ embeds: [embed] });
+            } else {
+                return interaction.editReply(`❌ Player **${ign}** not found in the database.`);
+            }
+        } catch (error) {
+            console.error(error);
+            return interaction.editReply('❌ An error occurred while updating the profile background.');
+        }
+    }
+
     if (commandName === 'changename') {
         const oldName = options.getString('oldname');
         const newName = options.getString('newname');

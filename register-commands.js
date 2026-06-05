@@ -355,7 +355,13 @@ const commands = [
 
     new SlashCommandBuilder()
         .setName('leaderboard')
-        .setDescription('View the interactive leaderboard')
+        .setDescription('View the interactive leaderboard'),
+
+    new SlashCommandBuilder()
+        .setName('customprofile')
+        .setDescription('Set a custom background for a player profile.')
+        .addStringOption(option => option.setName('ign').setDescription('The IGN of the player').setRequired(true))
+        .addStringOption(option => option.setName('background').setDescription('Background URL or Hex Color').setRequired(true))
 
 ].map(command => command.toJSON());
 
