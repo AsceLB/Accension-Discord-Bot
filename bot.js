@@ -1024,9 +1024,10 @@ client.on('interactionCreate', async interaction => {
         const ign = options.getString('ign');
         const color = options.getString('color');
         const imageUrl = options.getString('image_url');
+        const borderColor = options.getString('border_color');
         
-        if (!color && !imageUrl) {
-            return interaction.reply({ content: '❌ You must provide either a color from the dropdown or a custom image URL.', ephemeral: true });
+        if (!color && !imageUrl && !borderColor) {
+            return interaction.reply({ content: '❌ You must provide at least a background color, an image URL, or a border color.', ephemeral: true });
         }
         
         const background = imageUrl || color;
@@ -1046,12 +1047,27 @@ client.on('interactionCreate', async interaction => {
             let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
             
             if (playerIndex !== -1) {
-                players[playerIndex].background = background;
+                if (background) {
+                    if (background === 'reset' || background === '#0d1117') {
+                        delete players[playerIndex].background;
+                    } else {
+                        players[playerIndex].background = background;
+                    }
+                }
+                
+                if (borderColor) {
+                    if (borderColor === 'reset') {
+                        delete players[playerIndex].border;
+                    } else {
+                        players[playerIndex].border = borderColor;
+                    }
+                }
+                
                 await set(playersRef, players);
                 
                 const embed = new EmbedBuilder()
                     .setTitle('🎨 Custom Profile Updated!')
-                    .setDescription(`**${players[playerIndex].name}**'s profile background has been updated.`)
+                    .setDescription(`**${players[playerIndex].name}**'s profile styling has been updated.`)
                     .setColor('#00e5ff');
 
                 return interaction.editReply({ embeds: [embed] });

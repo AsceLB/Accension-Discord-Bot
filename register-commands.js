@@ -392,6 +392,36 @@ const commands = [
                     { name: 'Rose Gold', value: '#b76e79' }
                 ))
         .addStringOption(option => option.setName('image_url').setDescription('Or paste a custom image URL').setRequired(false))
+        .addStringOption(option => 
+            option.setName('border_color')
+                .setDescription('Select a preset neon border color')
+                .setRequired(false)
+                .addChoices(
+                    { name: 'Default (Reset)', value: 'reset' },
+                    { name: 'Pure Black', value: '#000000' },
+                    { name: 'Shadow Gray', value: '#1f2937' },
+                    { name: 'White Smoke', value: '#f3f4f6' },
+                    { name: 'Blood Red', value: '#8b0000' },
+                    { name: 'Crimson', value: '#dc143c' },
+                    { name: 'Rose Pink', value: '#f43f5e' },
+                    { name: 'Hot Magenta', value: '#d946ef' },
+                    { name: 'Royal Purple', value: '#581c87' },
+                    { name: 'Neon Purple', value: '#9333ea' },
+                    { name: 'Deep Indigo', value: '#312e81' },
+                    { name: 'Midnight Blue', value: '#0f172a' },
+                    { name: 'Ocean Blue', value: '#2563eb' },
+                    { name: 'Ice Blue', value: '#e0f2fe' },
+                    { name: 'Neon Cyan', value: '#06b6d4' },
+                    { name: 'Emerald Green', value: '#064e3b' },
+                    { name: 'Neon Green', value: '#22c55e' },
+                    { name: 'Lime', value: '#84cc16' },
+                    { name: 'Goldenrod', value: '#ca8a04' },
+                    { name: 'Neon Yellow', value: '#eab308' },
+                    { name: 'Deep Orange', value: '#ea580c' },
+                    { name: 'Bronze', value: '#b45309' },
+                    { name: 'Chocolate', value: '#451a03' },
+                    { name: 'Rose Gold', value: '#b76e79' }
+                ))
 
 ].map(command => command.toJSON());
 
