@@ -1022,7 +1022,14 @@ client.on('interactionCreate', async interaction => {
     }
     if (commandName === 'customprofile') {
         const ign = options.getString('ign');
-        const background = options.getString('background');
+        const color = options.getString('color');
+        const imageUrl = options.getString('image_url');
+        
+        if (!color && !imageUrl) {
+            return interaction.reply({ content: '❌ You must provide either a color from the dropdown or a custom image URL.', ephemeral: true });
+        }
+        
+        const background = imageUrl || color;
 
         await interaction.deferReply();
         try {

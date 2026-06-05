@@ -361,7 +361,21 @@ const commands = [
         .setName('customprofile')
         .setDescription('Set a custom background for a player profile.')
         .addStringOption(option => option.setName('ign').setDescription('The IGN of the player').setRequired(true))
-        .addStringOption(option => option.setName('background').setDescription('Background URL or Hex Color').setRequired(true))
+        .addStringOption(option => 
+            option.setName('color')
+                .setDescription('Select a preset background color')
+                .setRequired(false)
+                .addChoices(
+                    { name: 'Red (Crimson)', value: '#7f1d1d' },
+                    { name: 'Purple (Royal)', value: '#581c87' },
+                    { name: 'Blue (Midnight)', value: '#0f172a' },
+                    { name: 'Cyan (Icy)', value: '#083344' },
+                    { name: 'Green (Emerald)', value: '#064e3b' },
+                    { name: 'Gold (Goldenrod)', value: '#ca8a04' },
+                    { name: 'Black (Shadow)', value: '#0a0a0a' },
+                    { name: 'Default (Reset)', value: '#0d1117' }
+                ))
+        .addStringOption(option => option.setName('image_url').setDescription('Or paste a custom image URL').setRequired(false))
 
 ].map(command => command.toJSON());
 
