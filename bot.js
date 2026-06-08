@@ -116,7 +116,7 @@ async function buildLeaderboardMessage() {
 }
 
 client.on('interactionCreate', async interaction => {
-    const ADMIN_IDS = ['760539503211053057', '1406613103499677746', '1243137908613840958'];
+    const ADMIN_IDS = ['760539503211053057', '1406613103499677746', '1243137908613840958', '1299664877387911225'];
     const ADMIN_ROLES = ['1493227708446937158', '1483019761091612815'];
     
     let hasAccess = false;
