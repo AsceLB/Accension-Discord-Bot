@@ -25,7 +25,7 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 
 // Discord Bot Setup
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 
 client.once('ready', async () => {
     console.log(`Bot is online as ${client.user.tag}!`);
@@ -1136,6 +1136,76 @@ client.on('interactionCreate', async interaction => {
             }
         } catch (error) {
             interaction.editReply('❌ Database error.');
+        }
+    }
+    if (commandName === 'dm' || commandName === 'dmall') {
+        const messageContent = options.getString('message');
+        let targetMember = null;
+        
+        if (commandName === 'dm') {
+            targetMember = options.getUser('member'); 
+        }
+
+        // Ephemeral so only the admin sees the confirmation
+        await interaction.deferReply({ ephemeral: true });
+
+        const dmEmbed = new EmbedBuilder()
+            .setColor('#2ecc71')
+            .setAuthor({ name: 'System Announcement', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+            .setTitle('📨 New Message from Admin')
+            .setDescription(messageContent)
+            .setFooter({ text: `Sent by ${interaction.user.username} • Ascension Bot` })
+            .setTimestamp();
+
+        try {
+            if (targetMember) {
+                // DM a single specific member
+                try {
+                    await targetMember.send({ embeds: [dmEmbed] });
+                    await interaction.editReply(`✅ Successfully sent a direct message to **${targetMember.username}**.`);
+                } catch (err) {
+                    await interaction.editReply(`❌ Failed to send DM to **${targetMember.username}**. They might have DMs disabled.`);
+                }
+            } else {
+                // DM all members in the server
+                if (!interaction.guild) {
+                    return interaction.editReply('❌ This command can only be used in a server to DM everyone.');
+                }
+                
+                await interaction.editReply('⏳ Fetching members and sending DMs... This might take a while.');
+                
+                // Fetch all members
+                const members = await interaction.guild.members.fetch();
+                
+                let successCount = 0;
+                let failCount = 0;
+                
+                for (const [id, member] of members) {
+                    if (!member.user.bot) {
+                        try {
+                            await member.send({ embeds: [dmEmbed] });
+                            successCount++;
+                        } catch (err) {
+                            failCount++;
+                        }
+                    }
+                }
+                
+                const resultEmbed = new EmbedBuilder()
+                    .setColor('#3498db')
+                    .setTitle('📊 Mass DM Results')
+                    .addFields(
+                        { name: '✅ Successful', value: `${successCount} members`, inline: true },
+                        { name: '❌ Failed (DMs disabled)', value: `${failCount} members`, inline: true }
+                    )
+                    .setFooter({ text: 'Ascension Bot • Mass Message System' })
+                    .setTimestamp();
+                    
+                await interaction.editReply({ content: '✅ Mass DM completed!', embeds: [resultEmbed] });
+            }
+        } catch (error) {
+            console.error(error);
+            await interaction.editReply('❌ An error occurred while executing the DM command.');
         }
     }
 });

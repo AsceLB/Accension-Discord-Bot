@@ -436,6 +436,26 @@ const commands = [
                     { name: 'Rose Gold', value: '#b76e79' }
                 ))
 
+    new SlashCommandBuilder()
+        .setName('dm')
+        .setDescription('Send a direct message to a specific member or everyone in the server.')
+        .addUserOption(option => 
+            option.setName('member')
+                .setDescription('The member to DM (leave empty to DM everyone)')
+                .setRequired(false))
+        .addStringOption(option => 
+            option.setName('message')
+                .setDescription('The message content to send')
+                .setRequired(true)),
+
+    new SlashCommandBuilder()
+        .setName('dmall')
+        .setDescription('Send a direct message to ALL members in the server.')
+        .addStringOption(option => 
+            option.setName('message')
+                .setDescription('The message content to send to everyone')
+                .setRequired(true)),
+
 ].map(command => command.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
