@@ -438,15 +438,15 @@ const commands = [
 
     new SlashCommandBuilder()
         .setName('dm')
-        .setDescription('Send a direct message to a specific member or everyone in the server.')
+        .setDescription('Send a direct message to a specific member.')
+        .addUserOption(option => 
+            option.setName('member')
+                .setDescription('The member to DM')
+                .setRequired(true))
         .addStringOption(option => 
             option.setName('message')
                 .setDescription('The message content to send')
-                .setRequired(true))
-        .addUserOption(option => 
-            option.setName('member')
-                .setDescription('The member to DM (leave empty to DM everyone)')
-                .setRequired(false)),
+                .setRequired(true)),
 
     new SlashCommandBuilder()
         .setName('dmall')

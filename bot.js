@@ -1152,9 +1152,9 @@ client.on('interactionCreate', async interaction => {
         const dmEmbed = new EmbedBuilder()
             .setColor('#2ecc71')
             .setAuthor({ name: 'System Announcement', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
-            .setTitle('📨 New Message from Admin')
+            .setTitle(`📨 New Message from ${interaction.user.username}`)
             .setDescription(messageContent)
-            .setFooter({ text: `Sent by ${interaction.user.username} • Ascension Bot` })
+            .setFooter({ text: 'Ascension Bot • System Message' })
             .setTimestamp();
 
         try {
