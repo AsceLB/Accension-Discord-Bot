@@ -434,7 +434,7 @@ const commands = [
                     { name: 'Bronze', value: '#b45309' },
                     { name: 'Chocolate', value: '#451a03' },
                     { name: 'Rose Gold', value: '#b76e79' }
-                ))
+                )),
 
     new SlashCommandBuilder()
         .setName('dm')
