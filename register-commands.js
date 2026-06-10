@@ -450,12 +450,45 @@ const commands = [
 
     new SlashCommandBuilder()
         .setName('dmall')
-        .setDescription('Send a direct message to ALL members in the server.')
+        .setDescription('Send a direct message to everyone in the server (excluding bots).')
         .addStringOption(option => 
             option.setName('message')
-                .setDescription('The message content to send to everyone')
-                .setRequired(true)),
-
+                .setDescription('The message to send')
+                .setRequired(true)
+        ),
+    new SlashCommandBuilder()
+        .setName('roster')
+        .setDescription('Manage the website roster')
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('add')
+                .setDescription('Add a user to a roster tier')
+                .addStringOption(option => option.setName('tier').setDescription('Tier name (e.g. HT1, LT2, etc)').setRequired(true))
+                .addStringOption(option => option.setName('name').setDescription('Username to add').setRequired(true))
+        )
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('remove')
+                .setDescription('Remove a user from a roster tier')
+                .addStringOption(option => option.setName('tier').setDescription('Tier name (e.g. HT1, LT2, etc)').setRequired(true))
+                .addStringOption(option => option.setName('name').setDescription('Username to remove').setRequired(true))
+        ),
+    new SlashCommandBuilder()
+        .setName('leadership')
+        .setDescription('Manage the website leadership section')
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('add')
+                .setDescription('Add a user to leadership')
+                .addStringOption(option => option.setName('name').setDescription('Username to add').setRequired(true))
+                .addStringOption(option => option.setName('role').setDescription('Role (e.g. Founder, Leader, Officer)').setRequired(true))
+        )
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('remove')
+                .setDescription('Remove a user from leadership')
+                .addStringOption(option => option.setName('name').setDescription('Username to remove').setRequired(true))
+        )
 ].map(command => command.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
