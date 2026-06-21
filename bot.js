@@ -799,6 +799,79 @@ client.on('interactionCreate', async interaction => {
         }
     }
 
+    if (commandName === 'promote') {
+        const ign = options.getString('ign');
+        const leaderboard = options.getString('leaderboard');
+        const tier = options.getString('tier').toUpperCase();
+
+        await interaction.deferReply();
+        try {
+            const playersRef = ref(db, 'players');
+            const snapshot = await get(playersRef);
+            let players = snapshot.exists() ? snapshot.val() : [];
+            players = Array.isArray(players) ? players : Object.values(players);
+            players = players.filter(p => p && p.name && p.stats);
+            players = players.filter(p => Object.keys(p.stats).length > 0);
+
+            let pIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
+            if (pIndex !== -1) {
+                players[pIndex].stats[leaderboard] = tier;
+            } else {
+                players.push({ name: ign, region: 'AS', stats: { [leaderboard]: tier } });
+            }
+
+            await set(playersRef, players);
+            const avatarUrl = `https://mc-heads.net/avatar/${ign}/200`;
+            const embed = new EmbedBuilder()
+                .setColor('#2ECC71')
+                .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+                .setTitle('⬆️ Player Promoted')
+                .setThumbnail(avatarUrl)
+                .setDescription(`**\`${ign}\`** was PROMOTED to **${tier}** in **${leaderboard.toUpperCase()}**.`)
+                .setFooter({ text: 'Ascension Bot • System Update' })
+                .setTimestamp();
+            interaction.editReply({ content: '', embeds: [embed] });
+        } catch (error) {
+            interaction.editReply('❌ Database error.');
+        }
+    }
+
+    if (commandName === 'demote') {
+        const ign = options.getString('ign');
+        const leaderboard = options.getString('leaderboard');
+        const tier = options.getString('tier').toUpperCase();
+
+        await interaction.deferReply();
+        try {
+            const playersRef = ref(db, 'players');
+            const snapshot = await get(playersRef);
+            let players = snapshot.exists() ? snapshot.val() : [];
+            players = Array.isArray(players) ? players : Object.values(players);
+            players = players.filter(p => p && p.name && p.stats);
+            players = players.filter(p => Object.keys(p.stats).length > 0);
+
+            let pIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
+            if (pIndex !== -1) {
+                players[pIndex].stats[leaderboard] = tier;
+            } else {
+                players.push({ name: ign, region: 'AS', stats: { [leaderboard]: tier } });
+            }
+
+            await set(playersRef, players);
+            const avatarUrl = `https://mc-heads.net/avatar/${ign}/200`;
+            const embed = new EmbedBuilder()
+                .setColor('#E74C3C')
+                .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+                .setTitle('⬇️ Player Demoted')
+                .setThumbnail(avatarUrl)
+                .setDescription(`**\`${ign}\`** was DEMOTED to **${tier}** in **${leaderboard.toUpperCase()}**.`)
+                .setFooter({ text: 'Ascension Bot • System Update' })
+                .setTimestamp();
+            interaction.editReply({ content: '', embeds: [embed] });
+        } catch (error) {
+            interaction.editReply('❌ Database error.');
+        }
+    }
 
     if (commandName === 'results') {
         const player = options.getString('player');

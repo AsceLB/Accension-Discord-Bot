@@ -131,11 +131,73 @@ const commands = [
                     { name: 'UHC', value: 'uhc' },
                     { name: 'Vanilla', value: 'vanilla' },
                     { name: 'Pot', value: 'pot' },
-                    { name: 'Nethpot', value: 'nethop' },
-                    { name: 'SMP', value: 'smp' }
                 )),
 
-
+    new SlashCommandBuilder()
+        .setName('promote')
+        .setDescription('Promote a player to a higher Tier.')
+        .addStringOption(option => 
+            option.setName('ign')
+                .setDescription('The IGN to promote')
+                .setRequired(true))
+        .addStringOption(option => 
+            option.setName('leaderboard')
+                .setDescription('Select Leaderboard')
+                .setRequired(true)
+                .addChoices(
+                    { name: 'Sword', value: 'sword' },
+                    { name: 'Axe', value: 'axe' },
+                    { name: 'Mace', value: 'mace' },
+                    { name: 'UHC', value: 'uhc' },
+                    { name: 'Vanilla', value: 'vanilla' },
+                    { name: 'Pot', value: 'pot' },
+                    { name: 'Nethpot', value: 'nethop' },
+                    { name: 'SMP', value: 'smp' }
+                ))
+        .addStringOption(option => 
+            option.setName('tier')
+                .setDescription('New Tier (e.g. HT1, LT1, etc.)')
+                .setRequired(true)
+                .addChoices(
+                    { name: 'HT1', value: 'HT1' }, { name: 'LT1', value: 'LT1' },
+                    { name: 'HT2', value: 'HT2' }, { name: 'LT2', value: 'LT2' },
+                    { name: 'HT3', value: 'HT3' }, { name: 'LT3', value: 'LT3' },
+                    { name: 'HT4', value: 'HT4' }, { name: 'LT4', value: 'LT4' },
+                    { name: 'HT5', value: 'HT5' }, { name: 'LT5', value: 'LT5' }
+                )),
+                
+    new SlashCommandBuilder()
+        .setName('demote')
+        .setDescription('Demote a player to a lower Tier.')
+        .addStringOption(option => 
+            option.setName('ign')
+                .setDescription('The IGN to demote')
+                .setRequired(true))
+        .addStringOption(option => 
+            option.setName('leaderboard')
+                .setDescription('Select Leaderboard')
+                .setRequired(true)
+                .addChoices(
+                    { name: 'Sword', value: 'sword' },
+                    { name: 'Axe', value: 'axe' },
+                    { name: 'Mace', value: 'mace' },
+                    { name: 'UHC', value: 'uhc' },
+                    { name: 'Vanilla', value: 'vanilla' },
+                    { name: 'Pot', value: 'pot' },
+                    { name: 'Nethpot', value: 'nethop' },
+                    { name: 'SMP', value: 'smp' }
+                ))
+        .addStringOption(option => 
+            option.setName('tier')
+                .setDescription('New Tier (e.g. HT1, LT1, etc.)')
+                .setRequired(true)
+                .addChoices(
+                    { name: 'HT1', value: 'HT1' }, { name: 'LT1', value: 'LT1' },
+                    { name: 'HT2', value: 'HT2' }, { name: 'LT2', value: 'LT2' },
+                    { name: 'HT3', value: 'HT3' }, { name: 'LT3', value: 'LT3' },
+                    { name: 'HT4', value: 'HT4' }, { name: 'LT4', value: 'LT4' },
+                    { name: 'HT5', value: 'HT5' }, { name: 'LT5', value: 'LT5' }
+                )),
                 
     new SlashCommandBuilder()
         .setName('changeregion')
