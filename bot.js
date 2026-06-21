@@ -48,7 +48,7 @@ function getTitle(points) {
     return 'Rookie';
 }
 
-const POSITION_POINTS = { 1: 10, 2: 7, 3: 5, 4: 3, 5: 1, 'HT1': 15, 'LT1': 12, 'HT2': 10, 'LT2': 8, 'HT3': 6, 'LT3': 4, 'HT4': 3, 'LT4': 2, 'HT5': 1, 'LT5': 0 };
+const POSITION_POINTS = { 1: 10, 2: 7, 3: 5, 4: 3, 5: 1, 'HT1': 20, 'LT1': 15, 'HT2': 12, 'LT2': 10, 'HT3': 8, 'LT3': 6, 'HT4': 4, 'LT4': 2, 'HT5': 1, 'LT5': 0 };
 
 function getPlayerTotalPoints(player) {
     let total = 0;
