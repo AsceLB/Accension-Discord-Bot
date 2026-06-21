@@ -194,7 +194,7 @@ client.on('interactionCreate', async interaction => {
 
     if (commandName === 'peak') {
         const ign = options.getString('ign');
-        const rank = options.getInteger('rank');
+        const tier = options.getString('tier').toUpperCase();
         const leaderboard = options.getString('leaderboard');
         
         await interaction.deferReply();
@@ -210,7 +210,7 @@ client.on('interactionCreate', async interaction => {
             let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
             if (playerIndex !== -1 && players[playerIndex].stats[leaderboard]) {
                 players[playerIndex].peaks = players[playerIndex].peaks || {};
-                players[playerIndex].peaks[leaderboard] = rank;
+                players[playerIndex].peaks[leaderboard] = tier;
                 
                 await set(playersRef, players);
                 
@@ -218,12 +218,12 @@ client.on('interactionCreate', async interaction => {
                 const peakEmbed = new EmbedBuilder()
                     .setColor('#FF00FF')
                     .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
-                    .setTitle('✨ Peak Rank Set')
-                    .setDescription(`**${ign}**'s peak rank in **${leaderboard.toUpperCase()}** is now set to **#${rank}**.`)
+                    .setTitle('🚀 Peak Tier Set')
+                    .setDescription(`**${ign}**'s peak tier in **${leaderboard.toUpperCase()}** is now set to **${tier}**.`)
                     .setThumbnail(avatarUrl)
                     .addFields(
                         { name: 'Mode', value: `**${leaderboard.toUpperCase()}**`, inline: true },
-                        { name: 'Peak Rank', value: `**#${rank}**`, inline: true }
+                        { name: 'Peak Tier', value: `**${tier}**`, inline: true }
                     )
                     .setFooter({ text: 'Ascension Bot • System Update' })
                     .setTimestamp();
@@ -261,8 +261,8 @@ client.on('interactionCreate', async interaction => {
                 const unpeakEmbed = new EmbedBuilder()
                     .setColor('#FF00FF')
                     .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
-                    .setTitle('🧹 Peak Rank Removed')
-                    .setDescription(`**${ign}**'s peak rank in **${leaderboard.toUpperCase()}** has been removed.`)
+                    .setTitle('🗑️ Peak Tier Removed')
+                    .setDescription(`**${ign}**'s peak tier in **${leaderboard.toUpperCase()}** has been removed.`)
                     .setThumbnail(avatarUrl)
                     .addFields(
                         { name: 'Mode', value: `**${leaderboard.toUpperCase()}**`, inline: true }
@@ -272,7 +272,7 @@ client.on('interactionCreate', async interaction => {
                     
                 interaction.editReply({ content: '', embeds: [unpeakEmbed] });
             } else {
-                interaction.editReply(`⚠️ Player **${ign}** does not have a peak rank in **${leaderboard}**.`);
+                interaction.editReply(`❌ Player **${ign}** does not have a peak tier in **${leaderboard}**.`);
             }
         } catch (error) {
             interaction.editReply('❌ Database error.');
