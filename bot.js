@@ -565,6 +565,10 @@ client.on('interactionCreate', async interaction => {
         const tier = options.getString('tier').toUpperCase();
         const region = options.getString('region') || 'AS'; // Default to AS if not provided
 
+        if (ign.includes(',') || ign.includes(' ')) {
+            return interaction.reply({ content: '❌ Invalid IGN. If you are trying to add multiple players, please use the **`/addmulti`** command instead!', ephemeral: true });
+        }
+
         await interaction.deferReply();
 
         try {
@@ -676,6 +680,10 @@ client.on('interactionCreate', async interaction => {
 
     if (commandName === 'delete') {
         const ign = options.getString('ign');
+
+        if (ign.includes(',') || ign.includes(' ')) {
+            return interaction.reply({ content: '❌ Invalid IGN. If you are trying to delete multiple players, please use the **`/deletemulti`** command instead!', ephemeral: true });
+        }
 
         await interaction.deferReply();
 
