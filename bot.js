@@ -148,7 +148,8 @@ client.on('interactionCreate', async interaction => {
                 const playersRef = ref(db, 'players');
                 const [matchSnapshot, playersSnapshot] = await Promise.all([get(matchHistoryRef), get(playersRef)]);
                 
-                if (!matchSnapshot.exists() || !playersSnapshot.exists()) return interaction.editReply('❌ Database error.');
+                if (!matchSnapshot.exists()) return interaction.editReply('❌ The match history is empty. The match may have already been deleted.');
+                if (!playersSnapshot.exists()) return interaction.editReply('❌ No players found in the database.');
                 
                 let matchHistory = matchSnapshot.val();
                 matchHistory = Array.isArray(matchHistory) ? matchHistory : Object.values(matchHistory);
@@ -798,88 +799,7 @@ client.on('interactionCreate', async interaction => {
         }
     }
 
-    if (commandName === 'promote') {
-        const ign = options.getString('ign');
-        const leaderboard = options.getString('leaderboard');
-        const newRank = options.getInteger('rank');
-        
-        await interaction.deferReply();
-        try {
-            const playersRef = ref(db, 'players');
-            const snapshot = await get(playersRef);
-            let players = snapshot.exists() ? snapshot.val() : [];
-            players = Array.isArray(players) ? players : Object.values(players);
-            players = players.filter(p => p && p.name && p.stats);
 
-            let pIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
-            // Rank shifting removed to allow multiple players per rank
-
-            // Clean up players with empty stats
-            players = players.filter(p => Object.keys(p.stats).length > 0);
-
-            // Assign new rank
-            pIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
-            if (pIndex !== -1) {
-                players[pIndex].stats[leaderboard] = newRank;
-            } else {
-                players.push({ name: ign, region: 'AS', stats: { [leaderboard]: newRank } });
-            }
-
-            await set(playersRef, players);
-            const avatarUrl = `https://mc-heads.net/avatar/${ign}/200`;
-            const embed = new EmbedBuilder()
-                .setColor('#2ECC71')
-                .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
-                .setTitle('⬆️ Player Promoted')
-                .setThumbnail(avatarUrl)
-                .setDescription(`**\`${ign}\`** was PROMOTED to **#${newRank}** in **${leaderboard.toUpperCase()}**.`)
-                .setFooter({ text: 'Ascension Bot • System Update' })
-                .setTimestamp();
-            interaction.editReply({ content: '', embeds: [embed] });
-        } catch (error) {
-            interaction.editReply('❌ Database error.');
-        }
-    }
-
-    if (commandName === 'demote') {
-        const ign = options.getString('ign');
-        const leaderboard = options.getString('leaderboard');
-        const newRank = options.getInteger('rank');
-        
-        await interaction.deferReply();
-        try {
-            const playersRef = ref(db, 'players');
-            const snapshot = await get(playersRef);
-            let players = snapshot.exists() ? snapshot.val() : [];
-            players = Array.isArray(players) ? players : Object.values(players);
-            players = players.filter(p => p && p.name && p.stats);
-
-            let pIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
-            if (pIndex !== -1 && typeof players[pIndex].stats[leaderboard] === 'number') {
-                let oldRank = players[pIndex].stats[leaderboard];
-                
-                // Rank shifting removed to allow multiple players per rank
-
-                players[pIndex].stats[leaderboard] = newRank;
-                players = players.filter(p => Object.keys(p.stats).length > 0);
-                await set(playersRef, players);
-                const avatarUrl = `https://mc-heads.net/avatar/${ign}/200`;
-                const embed = new EmbedBuilder()
-                    .setColor('#E74C3C')
-                    .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
-                    .setTitle('⬇️ Player Demoted')
-                    .setThumbnail(avatarUrl)
-                    .setDescription(`**\`${ign}\`** was DEMOTED to **#${newRank}** in **${leaderboard.toUpperCase()}**.`)
-                    .setFooter({ text: 'Ascension Bot • System Update' })
-                    .setTimestamp();
-                interaction.editReply({ content: '', embeds: [embed] });
-            } else {
-                interaction.editReply(`⚠️ **${ign}** is not active in **${leaderboard}** or does not exist.`);
-            }
-        } catch (error) {
-            interaction.editReply('❌ Database error.');
-        }
-    }
     if (commandName === 'results') {
         const player = options.getString('player');
         const opponent = options.getString('opponent');
@@ -932,26 +852,9 @@ client.on('interactionCreate', async interaction => {
                 if (oRank !== null) oppCurrentRank = `#${oRank}`;
                 if (oppIndex !== -1 && players[oppIndex].region) oppRegion = players[oppIndex].region;
 
-                if (status === 'Won' && oppIndex !== -1 && oRank !== null && pRank !== null && oRank < pRank) {
-                    // Player won against someone with a better rank
-                    let newRank = oRank;
-                    rankUpdateText = `Promoted to **#${newRank}** ⬆️`;
-                    
-                    if (oRank < 5) oppRankUpdateText = `Demoted to **#${oRank + 1}** ⬇️`;
-                    else oppRankUpdateText = `Demoted off leaderboard ⬇️`;
-
-                } else if (status === 'Won' && pRank === null && oppIndex !== -1 && oRank !== null) {
-                    // Player won against someone but was unranked
-                    let newRank = oRank;
-                    rankUpdateText = `Promoted to **#${newRank}** ⬆️`;
-
-                    if (oRank < 5) oppRankUpdateText = `Demoted to **#${oRank + 1}** ⬇️`;
-                    else oppRankUpdateText = `Demoted off leaderboard ⬇️`;
-
-                } else {
-                    rankUpdateText = `No rank change`;
-                    oppRankUpdateText = `No rank change`;
-                }
+                // Tiers are manually updated via /setrank, so we just display the current tiers
+                rankUpdateText = `(Use /setrank to update Tiers if needed)`;
+                oppRankUpdateText = `(Use /setrank to update Tiers if needed)`;
             }
         } catch(e) {
             console.error('Database fetch error on /results', e);

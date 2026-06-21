@@ -135,61 +135,7 @@ const commands = [
                     { name: 'SMP', value: 'smp' }
                 )),
 
-    new SlashCommandBuilder()
-        .setName('promote')
-        .setDescription('Promote a player and shift existing active players down.')
-        .addStringOption(option => 
-            option.setName('ign')
-                .setDescription('The IGN to promote')
-                .setRequired(true))
-        .addStringOption(option => 
-            option.setName('leaderboard')
-                .setDescription('Select Leaderboard')
-                .setRequired(true)
-                .addChoices(
-                    { name: 'Sword', value: 'sword' },
-                    { name: 'Axe', value: 'axe' },
-                    { name: 'Mace', value: 'mace' },
-                    { name: 'UHC', value: 'uhc' },
-                    { name: 'Vanilla', value: 'vanilla' },
-                    { name: 'Pot', value: 'pot' },
-                    { name: 'Nethpot', value: 'nethop' },
-                    { name: 'SMP', value: 'smp' }
-                ))
-        .addIntegerOption(option => 
-            option.setName('rank')
-                .setDescription('New rank achieved (e.g., 1)')
-                .setRequired(true)
-                .setMinValue(1)
-                .setMaxValue(5)),
-                
-    new SlashCommandBuilder()
-        .setName('demote')
-        .setDescription('Demote a player and shift existing active players up.')
-        .addStringOption(option => 
-            option.setName('ign')
-                .setDescription('The IGN to demote')
-                .setRequired(true))
-        .addStringOption(option => 
-            option.setName('leaderboard')
-                .setDescription('Select Leaderboard')
-                .setRequired(true)
-                .addChoices(
-                    { name: 'Sword', value: 'sword' },
-                    { name: 'Axe', value: 'axe' },
-                    { name: 'Mace', value: 'mace' },
-                    { name: 'UHC', value: 'uhc' },
-                    { name: 'Vanilla', value: 'vanilla' },
-                    { name: 'Pot', value: 'pot' },
-                    { name: 'Nethpot', value: 'nethop' },
-                    { name: 'SMP', value: 'smp' }
-                ))
-        .addIntegerOption(option => 
-            option.setName('rank')
-                .setDescription('New rank (e.g., 3)')
-                .setRequired(true)
-                .setMinValue(1)
-                .setMaxValue(5)),
+
                 
     new SlashCommandBuilder()
         .setName('changeregion')
