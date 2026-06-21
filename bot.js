@@ -48,7 +48,7 @@ function getTitle(points) {
     return 'Rookie';
 }
 
-const POSITION_POINTS = { 1: 10, 2: 7, 3: 5, 4: 3, 5: 1 };
+const POSITION_POINTS = { 1: 10, 2: 7, 3: 5, 4: 3, 5: 1, 'HT1': 15, 'LT1': 12, 'HT2': 10, 'LT2': 8, 'HT3': 6, 'LT3': 4, 'HT4': 3, 'LT4': 2, 'HT5': 1, 'LT5': 0 };
 
 function getPlayerTotalPoints(player) {
     let total = 0;
@@ -561,7 +561,7 @@ client.on('interactionCreate', async interaction => {
     if (commandName === 'add') {
         const ign = options.getString('ign');
         const leaderboard = options.getString('leaderboard');
-        const position = options.getInteger('position');
+        const tier = options.getString('tier').toUpperCase();
         const region = options.getString('region') || 'AS'; // Default to AS if not provided
 
         await interaction.deferReply();
@@ -577,16 +577,15 @@ client.on('interactionCreate', async interaction => {
                 players = players.filter(p => p && p.name && p.stats);
             }
 
-            let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
             // Rank shifting removed to allow multiple players per rank
             players = players.filter(p => Object.keys(p.stats).length > 0);
             
-            playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
+            let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
             if (playerIndex !== -1) {
-                players[playerIndex].stats[leaderboard] = position;
+                players[playerIndex].stats[leaderboard] = tier;
                 if (options.getString('region')) players[playerIndex].region = region;
             } else {
-                players.push({ name: ign, region: region, stats: { [leaderboard]: position } });
+                players.push({ name: ign, region: region, stats: { [leaderboard]: tier } });
             }
 
             await set(playersRef, players);
@@ -601,7 +600,7 @@ client.on('interactionCreate', async interaction => {
                     { name: 'IGN', value: `**${ign}**`, inline: true },
                     { name: 'Region', value: `${region}`, inline: true },
                     { name: 'Leaderboard', value: `**${leaderboard.toUpperCase()}**`, inline: true },
-                    { name: 'New Rank', value: `**#${position}**`, inline: true }
+                    { name: 'New Tier', value: `**${tier}**`, inline: true }
                 )
                 .setFooter({ text: 'Ascension Bot • System Update' })
                 .setTimestamp();
@@ -1206,34 +1205,6 @@ client.on('interactionCreate', async interaction => {
         } catch (error) {
             console.error(error);
             await interaction.editReply('❌ An error occurred while executing the DM command.');
-        }
-    }
-
-    if (commandName === 'roster') {
-        const subcommand = options.getSubcommand();
-        const tier = options.getString('tier').toUpperCase();
-        const name = options.getString('name');
-
-        if (subcommand === 'add') {
-            await set(ref(db, `roster/${tier}/${name}`), true);
-            await interaction.reply({ content: `✅ Added **${name}** to **${tier}**.`, ephemeral: true });
-        } else if (subcommand === 'remove') {
-            await set(ref(db, `roster/${tier}/${name}`), null);
-            await interaction.reply({ content: `✅ Removed **${name}** from **${tier}**.`, ephemeral: true });
-        }
-    }
-
-    if (commandName === 'leadership') {
-        const subcommand = options.getSubcommand();
-        const name = options.getString('name');
-
-        if (subcommand === 'add') {
-            const role = options.getString('role');
-            await set(ref(db, `leadership/${name}`), { role });
-            await interaction.reply({ content: `✅ Added **${name}** as **${role}** to Leadership.`, ephemeral: true });
-        } else if (subcommand === 'remove') {
-            await set(ref(db, `leadership/${name}`), null);
-            await interaction.reply({ content: `✅ Removed **${name}** from Leadership.`, ephemeral: true });
         }
     }
 });

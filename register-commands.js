@@ -23,12 +23,17 @@ const commands = [
                     { name: 'Nethpot', value: 'nethop' },
                     { name: 'SMP', value: 'smp' }
                 ))
-        .addIntegerOption(option => 
-            option.setName('position')
-                .setDescription('Rank position (e.g., 1, 2, 3...)')
+        .addStringOption(option => 
+            option.setName('tier')
+                .setDescription('Tier (e.g. HT1, LT1, etc.)')
                 .setRequired(true)
-                .setMinValue(1)
-                .setMaxValue(5))
+                .addChoices(
+                    { name: 'HT1', value: 'HT1' }, { name: 'LT1', value: 'LT1' },
+                    { name: 'HT2', value: 'HT2' }, { name: 'LT2', value: 'LT2' },
+                    { name: 'HT3', value: 'HT3' }, { name: 'LT3', value: 'LT3' },
+                    { name: 'HT4', value: 'HT4' }, { name: 'LT4', value: 'LT4' },
+                    { name: 'HT5', value: 'HT5' }, { name: 'LT5', value: 'LT5' }
+                ))
         .addStringOption(option => 
             option.setName('region')
                 .setDescription('Region (Default: AS)')
@@ -461,58 +466,6 @@ const commands = [
                 .setDescription('The message to send')
                 .setRequired(true)
         ),
-    new SlashCommandBuilder()
-        .setName('roster')
-        .setDescription('Manage the website roster')
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('add')
-                .setDescription('Add a user to a roster tier')
-                .addStringOption(option => option.setName('tier').setDescription('Tier name (e.g. HT1, LT2, etc)').setRequired(true).addChoices(
-                    { name: 'HT1', value: 'HT1' }, { name: 'LT1', value: 'LT1' },
-                    { name: 'HT2', value: 'HT2' }, { name: 'LT2', value: 'LT2' },
-                    { name: 'HT3', value: 'HT3' }, { name: 'LT3', value: 'LT3' },
-                    { name: 'HT4', value: 'HT4' }, { name: 'LT4', value: 'LT4' },
-                    { name: 'HT5', value: 'HT5' }, { name: 'LT5', value: 'LT5' }
-                ))
-                .addStringOption(option => option.setName('name').setDescription('Username to add').setRequired(true))
-        )
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('remove')
-                .setDescription('Remove a user from a roster tier')
-                .addStringOption(option => option.setName('tier').setDescription('Tier name (e.g. HT1, LT2, etc)').setRequired(true).addChoices(
-                    { name: 'HT1', value: 'HT1' }, { name: 'LT1', value: 'LT1' },
-                    { name: 'HT2', value: 'HT2' }, { name: 'LT2', value: 'LT2' },
-                    { name: 'HT3', value: 'HT3' }, { name: 'LT3', value: 'LT3' },
-                    { name: 'HT4', value: 'HT4' }, { name: 'LT4', value: 'LT4' },
-                    { name: 'HT5', value: 'HT5' }, { name: 'LT5', value: 'LT5' }
-                ))
-                .addStringOption(option => option.setName('name').setDescription('Username to remove').setRequired(true))
-        ),
-    new SlashCommandBuilder()
-        .setName('leadership')
-        .setDescription('Manage the website leadership section')
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('add')
-                .setDescription('Add a user to leadership')
-                .addStringOption(option => option.setName('name').setDescription('Username to add').setRequired(true))
-                .addStringOption(option => option.setName('role').setDescription('Role').setRequired(true).addChoices(
-                    { name: 'Founder', value: 'Founder' },
-                    { name: 'Leader', value: 'Leader' },
-                    { name: 'EU Leader', value: 'EU Leader' },
-                    { name: 'War Leader', value: 'War Leader' },
-                    { name: 'Overseer', value: 'Overseer' },
-                    { name: 'Officer', value: 'Officer' }
-                ))
-        )
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('remove')
-                .setDescription('Remove a user from leadership')
-                .addStringOption(option => option.setName('name').setDescription('Username to remove').setRequired(true))
-        )
 ].map(command => command.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
