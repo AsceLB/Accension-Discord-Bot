@@ -45,11 +45,61 @@ const commands = [
                 )),
                 
     new SlashCommandBuilder()
+        .setName('addmulti')
+        .setDescription("Add or update multiple players' ranks at once.")
+        .addStringOption(option => 
+            option.setName('igns')
+                .setDescription('Comma-separated list of IGNs (e.g. Player1, Player2)')
+                .setRequired(true))
+        .addStringOption(option => 
+            option.setName('leaderboard')
+                .setDescription('Select Leaderboard')
+                .setRequired(true)
+                .addChoices(
+                    { name: 'Sword', value: 'sword' },
+                    { name: 'Axe', value: 'axe' },
+                    { name: 'Mace', value: 'mace' },
+                    { name: 'UHC', value: 'uhc' },
+                    { name: 'Vanilla', value: 'vanilla' },
+                    { name: 'Pot', value: 'pot' },
+                    { name: 'Nethpot', value: 'nethop' },
+                    { name: 'SMP', value: 'smp' }
+                ))
+        .addStringOption(option => 
+            option.setName('tier')
+                .setDescription('Tier (e.g. HT1, LT1, etc.)')
+                .setRequired(true)
+                .addChoices(
+                    { name: 'HT1', value: 'HT1' }, { name: 'LT1', value: 'LT1' },
+                    { name: 'HT2', value: 'HT2' }, { name: 'LT2', value: 'LT2' },
+                    { name: 'HT3', value: 'HT3' }, { name: 'LT3', value: 'LT3' },
+                    { name: 'HT4', value: 'HT4' }, { name: 'LT4', value: 'LT4' },
+                    { name: 'HT5', value: 'HT5' }, { name: 'LT5', value: 'LT5' }
+                ))
+        .addStringOption(option => 
+            option.setName('region')
+                .setDescription('Region (Default: AS)')
+                .setRequired(false)
+                .addChoices(
+                    { name: 'AS', value: 'AS' },
+                    { name: 'NA', value: 'NA' },
+                    { name: 'EU', value: 'EU' }
+                )),
+                
+    new SlashCommandBuilder()
         .setName('delete')
         .setDescription('Completely remove a player from the system.')
         .addStringOption(option => 
             option.setName('ign')
                 .setDescription('The IGN to delete')
+                .setRequired(true)),
+                
+    new SlashCommandBuilder()
+        .setName('deletemulti')
+        .setDescription('Completely remove multiple players from the system.')
+        .addStringOption(option => 
+            option.setName('igns')
+                .setDescription('Comma-separated list of IGNs to delete')
                 .setRequired(true)),
                 
     new SlashCommandBuilder()

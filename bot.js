@@ -614,6 +614,66 @@ client.on('interactionCreate', async interaction => {
         }
     }
 
+    if (commandName === 'addmulti') {
+        const ignsRaw = options.getString('igns');
+        const leaderboard = options.getString('leaderboard');
+        const tier = options.getString('tier').toUpperCase();
+        const region = options.getString('region') || 'AS';
+
+        const igns = ignsRaw.split(',').map(name => name.trim()).filter(name => name.length > 0);
+
+        if (igns.length === 0) {
+            return interaction.reply({ content: '❌ Invalid IGN list provided.', ephemeral: true });
+        }
+
+        await interaction.deferReply();
+
+        try {
+            const playersRef = ref(db, 'players');
+            const snapshot = await get(playersRef);
+            let players = [];
+            
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                players = Array.isArray(data) ? data : Object.values(data);
+                players = players.filter(p => p && p.name && p.stats);
+            }
+
+            players = players.filter(p => Object.keys(p.stats).length > 0);
+            
+            let updatedCount = 0;
+            let addedCount = 0;
+
+            for (const ign of igns) {
+                let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
+                if (playerIndex !== -1) {
+                    players[playerIndex].stats[leaderboard] = tier;
+                    if (options.getString('region')) players[playerIndex].region = region;
+                    updatedCount++;
+                } else {
+                    players.push({ name: ign, region: region, stats: { [leaderboard]: tier } });
+                    addedCount++;
+                }
+            }
+
+            await set(playersRef, players);
+            
+            const addEmbed = new EmbedBuilder()
+                .setColor('#00FF00')
+                .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+                .setTitle(`✅ Successfully Processed ${igns.length} Players`)
+                .setDescription(`Leaderboard: **${leaderboard.toUpperCase()}**\nTier: **${tier}**\nRegion: **${region}**\n\nAdded: **${addedCount}**\nUpdated: **${updatedCount}**\n\nPlayers: \`${igns.join(', ')}\``)
+                .setFooter({ text: 'Ascension Bot • System Update' })
+                .setTimestamp();
+                
+            await interaction.editReply({ content: '', embeds: [addEmbed] });
+
+        } catch (error) {
+            console.error(error);
+            await interaction.editReply('❌ Error saving to Database.');
+        }
+    }
+
     if (commandName === 'delete') {
         const ign = options.getString('ign');
 
@@ -870,6 +930,53 @@ client.on('interactionCreate', async interaction => {
             interaction.editReply({ content: '', embeds: [embed] });
         } catch (error) {
             interaction.editReply('❌ Database error.');
+        }
+    }
+    if (commandName === 'deletemulti') {
+        const ignsRaw = options.getString('igns');
+        const igns = ignsRaw.split(',').map(name => name.trim().toLowerCase()).filter(name => name.length > 0);
+
+        if (igns.length === 0) {
+            return interaction.reply({ content: '❌ Invalid IGN list provided.', ephemeral: true });
+        }
+
+        await interaction.deferReply();
+
+        try {
+            const playersRef = ref(db, 'players');
+            const snapshot = await get(playersRef);
+            
+            if (!snapshot.exists()) {
+                return interaction.editReply('❌ Database is empty.');
+            }
+
+            const data = snapshot.val();
+            let players = Array.isArray(data) ? data : Object.values(data);
+            players = players.filter(p => p && p.name && p.stats);
+
+            const initialLength = players.length;
+            players = players.filter(p => !igns.includes(p.name.toLowerCase()));
+            const deletedCount = initialLength - players.length;
+
+            if (deletedCount === 0) {
+                return interaction.editReply(`⚠️ Could not find any of the provided players in the system.`);
+            }
+
+            await set(playersRef, players);
+            
+            const delEmbed = new EmbedBuilder()
+                .setColor('#E74C3C')
+                .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
+                .setTitle(`🗑️ ${deletedCount} Players Deleted`)
+                .setDescription(`Successfully removed ${deletedCount} players from all leaderboards.\n\nRequested removal list: \`${ignsRaw}\``)
+                .setFooter({ text: 'Ascension Bot • System Update' })
+                .setTimestamp();
+                
+            await interaction.editReply({ content: '', embeds: [delEmbed] });
+
+        } catch (error) {
+            console.error(error);
+            await interaction.editReply('❌ Error saving to Database.');
         }
     }
 
