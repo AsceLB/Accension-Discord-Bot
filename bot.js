@@ -50,6 +50,75 @@ function getTitle(points) {
 
 const POSITION_POINTS = { 1: 10, 2: 7, 3: 5, 4: 3, 5: 1, 'HT1': 20, 'LT1': 15, 'HT2': 12, 'LT2': 10, 'HT3': 8, 'LT3': 6, 'HT4': 4, 'LT4': 2, 'HT5': 1, 'LT5': 0 };
 
+
+// --- Auto-updating Leaderboard Panel Logic ---
+async function updateLeaderboardPanel(client, db) {
+    try {
+        const sysRef = ref(db, 'system/leaderboardPanel');
+        const sysSnap = await get(sysRef);
+        if (!sysSnap.exists()) return;
+        const { channelId, messageId } = sysSnap.val();
+        
+        const channel = await client.channels.fetch(channelId).catch(() => null);
+        if (!channel) return;
+        const message = await channel.messages.fetch(messageId).catch(() => null);
+        if (!message) return;
+
+        const playersRef = ref(db, 'players');
+        const snap = await get(playersRef);
+        if (!snap.exists()) return;
+        
+        let data = snap.val();
+        let players = Array.isArray(data) ? data : Object.values(data);
+        
+        const categories = [
+            { id: 'sword', name: 'Sword', icon: 'https://i.postimg.cc/k4v6r98J/sword.png', color: '#ffb300' },
+            { id: 'axe', name: 'Axe', icon: 'https://i.postimg.cc/tTW2vCDB/axe.png', color: '#d84315' },
+            { id: 'mace', name: 'Mace', icon: 'https://i.postimg.cc/vBw9BtzZ/mace.png', color: '#eceff1' },
+            { id: 'vanilla', name: 'Vanilla', icon: 'https://i.postimg.cc/rFzMpxnB/vanilla.png', color: '#b39ddb' },
+            { id: 'smp', name: 'SMP', icon: 'https://i.postimg.cc/sX13X0pY/smp.png', color: '#4caf50' },
+            { id: 'pot', name: 'Pot', icon: 'https://i.postimg.cc/kG8w7b6V/pot.png', color: '#f06292' },
+            { id: 'nethop', name: 'Nethpot', icon: 'https://i.postimg.cc/XYR5r7h3/nethop.png', color: '#64b5f6' },
+            { id: 'uhc', name: 'UHC', icon: 'https://i.postimg.cc/85z11v2R/uhc.png', color: '#ffca28' }
+        ];
+
+        const embeds = [];
+        
+        for (const cat of categories) {
+            let catPlayers = players.filter(p => p.stats && p.stats[cat.id] && !String(p.stats[cat.id]).startsWith('r'));
+            
+            // Sort by points, then alphabetically
+            catPlayers.sort((a, b) => {
+                let ptsA = POSITION_POINTS[a.stats[cat.id]] || 0;
+                let ptsB = POSITION_POINTS[b.stats[cat.id]] || 0;
+                if (ptsA !== ptsB) return ptsB - ptsA;
+                return a.name.localeCompare(b.name);
+            });
+            
+            let desc = '';
+            for (let i = 0; i < 5; i++) {
+                if (i < catPlayers.length) {
+                    desc += `• **#${i+1} ${catPlayers[i].name}** - ${catPlayers[i].stats[cat.id]}\n`;
+                } else {
+                    desc += `• **#${i+1} N/A**\n`;
+                }
+            }
+            
+            const embed = new EmbedBuilder()
+                .setTitle(cat.name)
+                .setDescription(desc)
+                .setThumbnail(cat.icon)
+                .setColor(cat.color);
+            embeds.push(embed);
+        }
+
+        await message.edit({ content: '**🏆 ASCENSION LEADERBOARD 🏆**', embeds: embeds });
+    } catch (e) {
+        console.error("Error updating leaderboard panel:", e);
+    }
+}
+
+
 function getPlayerTotalPoints(player) {
     let total = 0;
     for (const [lb, rank] of Object.entries(player.stats || {})) {
@@ -195,7 +264,7 @@ client.on('interactionCreate', async interaction => {
 
     if (commandName === 'peak') {
         const ign = options.getString('ign');
-        const position = options.getInteger('position');
+        const tier = options.getString('tier');
         const leaderboard = options.getString('leaderboard');
         
         await interaction.deferReply();
@@ -211,7 +280,7 @@ client.on('interactionCreate', async interaction => {
             let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
             if (playerIndex !== -1 && players[playerIndex].stats[leaderboard]) {
                 players[playerIndex].peaks = players[playerIndex].peaks || {};
-                players[playerIndex].peaks[leaderboard] = position;
+                players[playerIndex].peaks[leaderboard] = tier;
                 
                 await set(playersRef, players);
                 
@@ -220,11 +289,11 @@ client.on('interactionCreate', async interaction => {
                     .setColor('#FF00FF')
                     .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                     .setTitle('🚀 Peak Tier Set')
-                    .setDescription(`**${ign}**'s peak tier in **${leaderboard.toUpperCase()}** is now set to **#${position}**.`)
+                    .setDescription(`**${ign}**'s peak tier in **${leaderboard.toUpperCase()}** is now set to **${tier}**.`)
                     .setThumbnail(avatarUrl)
                     .addFields(
                         { name: 'Mode', value: `**${leaderboard.toUpperCase()}**`, inline: true },
-                        { name: 'Peak Tier', value: `**#${position}**`, inline: true }
+                        { name: 'Peak Tier', value: `**${tier}**`, inline: true }
                     )
                     .setFooter({ text: 'Ascension Bot • System Update' })
                     .setTimestamp();
@@ -551,7 +620,8 @@ client.on('interactionCreate', async interaction => {
         await interaction.deferReply();
         try {
             const messagePayload = await buildLeaderboardMessage('overall');
-            await interaction.editReply(messagePayload);
+            await updateLeaderboardPanel(client, db);
+                await interaction.editReply(messagePayload);
         } catch (error) {
             console.error(error);
             await interaction.editReply('❌ Error fetching leaderboard.');
@@ -562,7 +632,7 @@ client.on('interactionCreate', async interaction => {
     if (commandName === 'add') {
         const ign = options.getString('ign');
         const leaderboard = options.getString('leaderboard');
-        const position = options.getInteger('position');
+        const tier = options.getString('tier');
         const region = options.getString('region') || 'AS'; // Default to AS if not provided
 
         if (ign.includes(',') || ign.includes(' ')) {
@@ -587,10 +657,10 @@ client.on('interactionCreate', async interaction => {
             
             let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
             if (playerIndex !== -1) {
-                players[playerIndex].stats[leaderboard] = position;
+                players[playerIndex].stats[leaderboard] = tier;
                 if (options.getString('region')) players[playerIndex].region = region;
             } else {
-                players.push({ name: ign, region: region, stats: { [leaderboard]: position } });
+                players.push({ name: ign, region: region, stats: { [leaderboard]: tier } });
             }
 
             await set(playersRef, players);
@@ -605,12 +675,13 @@ client.on('interactionCreate', async interaction => {
                     { name: 'IGN', value: `**${ign}**`, inline: true },
                     { name: 'Region', value: `${region}`, inline: true },
                     { name: 'Leaderboard', value: `**${leaderboard.toUpperCase()}**`, inline: true },
-                    { name: 'New Rank', value: `**#${position}**`, inline: true }
+                    { name: 'New Rank', value: `**${tier}**`, inline: true }
                 )
                 .setFooter({ text: 'Ascension Bot • System Update' })
                 .setTimestamp();
                 
-            await interaction.editReply({ content: '', embeds: [addEmbed] });
+            await updateLeaderboardPanel(client, db);
+                await interaction.editReply({ content: '', embeds: [addEmbed] });
 
         } catch (error) {
             console.error(error);
@@ -621,7 +692,7 @@ client.on('interactionCreate', async interaction => {
     if (commandName === 'addmulti') {
         const ignsRaw = options.getString('igns');
         const leaderboard = options.getString('leaderboard');
-        const position = options.getInteger('position');
+        const tier = options.getString('tier');
         const region = options.getString('region') || 'AS';
 
         const igns = ignsRaw.split(',').map(name => name.trim()).filter(name => name.length > 0);
@@ -651,11 +722,11 @@ client.on('interactionCreate', async interaction => {
             for (const ign of igns) {
                 let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
                 if (playerIndex !== -1) {
-                    players[playerIndex].stats[leaderboard] = position;
+                    players[playerIndex].stats[leaderboard] = tier;
                     if (options.getString('region')) players[playerIndex].region = region;
                     updatedCount++;
                 } else {
-                    players.push({ name: ign, region: region, stats: { [leaderboard]: position } });
+                    players.push({ name: ign, region: region, stats: { [leaderboard]: tier } });
                     addedCount++;
                 }
             }
@@ -666,11 +737,12 @@ client.on('interactionCreate', async interaction => {
                 .setColor('#00FF00')
                 .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                 .setTitle(`✅ Successfully Processed ${igns.length} Players`)
-                .setDescription(`Leaderboard: **${leaderboard.toUpperCase()}**\nTier: **#${position}**\nRegion: **${region}**\n\nAdded: **${addedCount}**\nUpdated: **${updatedCount}**\n\nPlayers: \`${igns.join(', ')}\``)
+                .setDescription(`Leaderboard: **${leaderboard.toUpperCase()}**\nTier: **${tier}**\nRegion: **${region}**\n\nAdded: **${addedCount}**\nUpdated: **${updatedCount}**\n\nPlayers: \`${igns.join(', ')}\``)
                 .setFooter({ text: 'Ascension Bot • System Update' })
                 .setTimestamp();
                 
-            await interaction.editReply({ content: '', embeds: [addEmbed] });
+            await updateLeaderboardPanel(client, db);
+                await interaction.editReply({ content: '', embeds: [addEmbed] });
 
         } catch (error) {
             console.error(error);
@@ -717,7 +789,8 @@ client.on('interactionCreate', async interaction => {
                 .setFooter({ text: 'Ascension Bot • System Update' })
                 .setTimestamp();
                 
-            await interaction.editReply({ content: '', embeds: [delEmbed] });
+            await updateLeaderboardPanel(client, db);
+                await interaction.editReply({ content: '', embeds: [delEmbed] });
 
         } catch (error) {
             console.error(error);
@@ -870,7 +943,7 @@ client.on('interactionCreate', async interaction => {
     if (commandName === 'promote') {
         const ign = options.getString('ign');
         const leaderboard = options.getString('leaderboard');
-        const position = options.getInteger('position');
+        const tier = options.getString('tier');
 
         await interaction.deferReply();
         try {
@@ -885,7 +958,7 @@ client.on('interactionCreate', async interaction => {
             if (pIndex !== -1) {
                 players[pIndex].stats[leaderboard] = tier;
             } else {
-                players.push({ name: ign, region: 'AS', stats: { [leaderboard]: position } });
+                players.push({ name: ign, region: 'AS', stats: { [leaderboard]: tier } });
             }
 
             await set(playersRef, players);
@@ -895,7 +968,7 @@ client.on('interactionCreate', async interaction => {
                 .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                 .setTitle('⬆️ Player Promoted')
                 .setThumbnail(avatarUrl)
-                .setDescription(`**\`${ign}\`** was PROMOTED to **#${position}** in **${leaderboard.toUpperCase()}**.`)
+                .setDescription(`**\`${ign}\`** was PROMOTED to **${tier}** in **${leaderboard.toUpperCase()}**.`)
                 .setFooter({ text: 'Ascension Bot • System Update' })
                 .setTimestamp();
             interaction.editReply({ content: '', embeds: [embed] });
@@ -907,7 +980,7 @@ client.on('interactionCreate', async interaction => {
     if (commandName === 'demote') {
         const ign = options.getString('ign');
         const leaderboard = options.getString('leaderboard');
-        const position = options.getInteger('position');
+        const tier = options.getString('tier');
 
         await interaction.deferReply();
         try {
@@ -922,7 +995,7 @@ client.on('interactionCreate', async interaction => {
             if (pIndex !== -1) {
                 players[pIndex].stats[leaderboard] = tier;
             } else {
-                players.push({ name: ign, region: 'AS', stats: { [leaderboard]: position } });
+                players.push({ name: ign, region: 'AS', stats: { [leaderboard]: tier } });
             }
 
             await set(playersRef, players);
@@ -932,7 +1005,7 @@ client.on('interactionCreate', async interaction => {
                 .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                 .setTitle('⬇️ Player Demoted')
                 .setThumbnail(avatarUrl)
-                .setDescription(`**\`${ign}\`** was DEMOTED to **#${position}** in **${leaderboard.toUpperCase()}**.`)
+                .setDescription(`**\`${ign}\`** was DEMOTED to **${tier}** in **${leaderboard.toUpperCase()}**.`)
                 .setFooter({ text: 'Ascension Bot • System Update' })
                 .setTimestamp();
             interaction.editReply({ content: '', embeds: [embed] });
@@ -980,12 +1053,32 @@ client.on('interactionCreate', async interaction => {
                 .setFooter({ text: 'Ascension Bot • System Update' })
                 .setTimestamp();
                 
-            await interaction.editReply({ content: '', embeds: [delEmbed] });
+            await updateLeaderboardPanel(client, db);
+                await interaction.editReply({ content: '', embeds: [delEmbed] });
 
         } catch (error) {
             console.error(error);
             await interaction.editReply('❌ Error saving to Database.');
         }
+    }
+
+    
+    if (commandName === 'setup_leaderboard') {
+        await interaction.deferReply();
+        const sysRef = ref(db, 'system/leaderboardPanel');
+        
+        // Send a placeholder message
+        const message = await interaction.channel.send({ content: "Loading Leaderboard Panel..." });
+        
+        await set(sysRef, {
+            channelId: interaction.channelId,
+            messageId: message.id
+        });
+        
+        await updateLeaderboardPanel(client, db);
+        
+        await interaction.editReply({ content: "Leaderboard Panel setup successfully!" });
+        return;
     }
 
     if (commandName === 'results') {
@@ -1252,7 +1345,8 @@ client.on('interactionCreate', async interaction => {
                 // DM a single specific member
                 try {
                     await targetMember.send({ embeds: [dmEmbed] });
-                    await interaction.editReply(`✅ Successfully sent a direct message to **${targetMember.username}**.`);
+                    await updateLeaderboardPanel(client, db);
+                await interaction.editReply(`✅ Successfully sent a direct message to **${targetMember.username}**.`);
                 } catch (err) {
                     await interaction.editReply(`❌ Failed to send DM to **${targetMember.username}**. They might have DMs disabled.`);
                 }

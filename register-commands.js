@@ -23,11 +23,10 @@ const commands = [
                     { name: 'Nethpot', value: 'nethop' },
                     { name: 'SMP', value: 'smp' }
                 ))
-        .addIntegerOption(option => 
-            option.setName('position')
-                .setDescription('Rank Position (e.g. 1, 2, 3)')
-                .setRequired(true)
-                .setMinValue(1))
+        .addStringOption(option => 
+            option.setName('tier')
+                .setDescription('Tier (e.g. HT1, LT2, Tier 4)')
+                .setRequired(true))
         .addStringOption(option => 
             option.setName('region')
                 .setDescription('Region (Default: AS)')
@@ -59,11 +58,10 @@ const commands = [
                     { name: 'Nethpot', value: 'nethop' },
                     { name: 'SMP', value: 'smp' }
                 ))
-        .addIntegerOption(option => 
-            option.setName('position')
-                .setDescription('Rank Position (e.g. 1, 2, 3)')
-                .setRequired(true)
-                .setMinValue(1))
+        .addStringOption(option => 
+            option.setName('tier')
+                .setDescription('Tier (e.g. HT1, LT2, Tier 4)')
+                .setRequired(true))
         .addStringOption(option => 
             option.setName('region')
                 .setDescription('Region (Default: AS)')
@@ -129,6 +127,11 @@ const commands = [
                 .setDescription('Region (e.g., AS)')
                 .setRequired(false)),
                 
+    
+    new SlashCommandBuilder()
+        .setName('setup_leaderboard')
+        .setDescription('Create a self-updating Leaderboard Panel in this channel.'),
+
     new SlashCommandBuilder()
         .setName('removerank')
         .setDescription('Remove a specific rank from a player.')
@@ -192,11 +195,10 @@ const commands = [
                     { name: 'Nethpot', value: 'nethop' },
                     { name: 'SMP', value: 'smp' }
                 ))
-        .addIntegerOption(option => 
-            option.setName('position')
-                .setDescription('Rank Position (e.g. 1, 2, 3)')
-                .setRequired(true)
-                .setMinValue(1)),
+        .addStringOption(option => 
+            option.setName('tier')
+                .setDescription('Tier (e.g. HT1, LT2, Tier 4)')
+                .setRequired(true)),
                 
     new SlashCommandBuilder()
         .setName('demote')
@@ -219,11 +221,10 @@ const commands = [
                     { name: 'Nethpot', value: 'nethop' },
                     { name: 'SMP', value: 'smp' }
                 ))
-        .addIntegerOption(option => 
-            option.setName('position')
-                .setDescription('Rank Position (e.g. 1, 2, 3)')
-                .setRequired(true)
-                .setMinValue(1)),
+        .addStringOption(option => 
+            option.setName('tier')
+                .setDescription('Tier (e.g. HT1, LT2, Tier 4)')
+                .setRequired(true)),
                 
     new SlashCommandBuilder()
         .setName('changeregion')
@@ -292,11 +293,10 @@ const commands = [
                     { name: 'Nethpot', value: 'nethop' },
                     { name: 'SMP', value: 'smp' }
                 ))
-        .addIntegerOption(option => 
-            option.setName('position')
-                .setDescription('Rank Position (e.g. 1, 2, 3)')
-                .setRequired(true)
-                .setMinValue(1)),
+        .addStringOption(option => 
+            option.setName('tier')
+                .setDescription('Tier (e.g. HT1, LT2, Tier 4)')
+                .setRequired(true)),
                 
     new SlashCommandBuilder()
         .setName('unpeak')
