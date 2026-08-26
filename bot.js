@@ -2,7 +2,7 @@ require('dotenv').config();
 const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, AttachmentBuilder } = require('discord.js');
 const path = require('path');
 const { initializeApp } = require('firebase/app');
-const { getDatabase, ref, get, set } = require('firebase/database');
+const { getDatabase, ref, get, set, onValue } = require('firebase/database');
 const { getAuth, signInAnonymously } = require('firebase/auth');
 const http = require('http');
 
