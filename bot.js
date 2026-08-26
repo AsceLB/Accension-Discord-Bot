@@ -85,17 +85,15 @@ async function updateLeaderboardPanel(client, db) {
         const embeds = [];
         
         for (const cat of categories) {
-            let catPlayers = players.filter(p => p.stats && typeof p.stats[cat.id] === 'number');
-            
-            // Sort by points, then alphabetically
-            catPlayers.sort((a, b) => a.stats[cat.id] - b.stats[cat.id]);
-            
             let desc = '';
-            for (let i = 0; i < 5; i++) {
-                if (i < catPlayers.length) {
-                    desc += `• **#${catPlayers[i].stats[cat.id]} ${catPlayers[i].name}**\n`;
+            for (let pos = 1; pos <= 5; pos++) {
+                let posPlayers = players.filter(p => p && p.stats && p.stats[cat.id] === pos);
+                if (posPlayers.length > 0) {
+                    for (const p of posPlayers) {
+                        desc += `• **#${pos} ${p.name}**\n`;
+                    }
                 } else {
-                    desc += `• **#${i+1} N/A**\n`;
+                    desc += `• **#${pos} N/A**\n`;
                 }
             }
             
