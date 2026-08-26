@@ -966,6 +966,7 @@ client.on('interactionCreate', async interaction => {
                 .setDescription(`**\`${ign}\`** was PROMOTED to **#${position}** in **${leaderboard.toUpperCase()}**.`)
                 .setFooter({ text: 'Ascension Bot • System Update' })
                 .setTimestamp();
+            await updateLeaderboardPanel(client, db);
             interaction.editReply({ content: '', embeds: [embed] });
         } catch (error) {
             interaction.editReply('❌ Database error.');
@@ -1003,6 +1004,7 @@ client.on('interactionCreate', async interaction => {
                 .setDescription(`**\`${ign}\`** was DEMOTED to **#${position}** in **${leaderboard.toUpperCase()}**.`)
                 .setFooter({ text: 'Ascension Bot • System Update' })
                 .setTimestamp();
+            await updateLeaderboardPanel(client, db);
             interaction.editReply({ content: '', embeds: [embed] });
         } catch (error) {
             interaction.editReply('❌ Database error.');
