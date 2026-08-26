@@ -23,10 +23,11 @@ const commands = [
                     { name: 'Nethpot', value: 'nethop' },
                     { name: 'SMP', value: 'smp' }
                 ))
-        .addStringOption(option => 
-            option.setName('tier')
-                .setDescription('Tier (e.g. HT1, LT2, Tier 4)')
-                .setRequired(true))
+        .addIntegerOption(option => 
+            option.setName('position')
+                .setDescription('Rank Position (e.g. 1, 2, 3)')
+                .setRequired(true)
+                .setMinValue(1))
         .addStringOption(option => 
             option.setName('region')
                 .setDescription('Region (Default: AS)')
@@ -58,10 +59,11 @@ const commands = [
                     { name: 'Nethpot', value: 'nethop' },
                     { name: 'SMP', value: 'smp' }
                 ))
-        .addStringOption(option => 
-            option.setName('tier')
-                .setDescription('Tier (e.g. HT1, LT2, Tier 4)')
-                .setRequired(true))
+        .addIntegerOption(option => 
+            option.setName('position')
+                .setDescription('Rank Position (e.g. 1, 2, 3)')
+                .setRequired(true)
+                .setMinValue(1))
         .addStringOption(option => 
             option.setName('region')
                 .setDescription('Region (Default: AS)')
@@ -176,7 +178,7 @@ const commands = [
 
     new SlashCommandBuilder()
         .setName('promote')
-        .setDescription('Promote a player to a higher Tier.')
+        .setDescription('Promote a player to a higher rank.')
         .addStringOption(option => 
             option.setName('ign')
                 .setDescription('The IGN to promote')
@@ -195,14 +197,15 @@ const commands = [
                     { name: 'Nethpot', value: 'nethop' },
                     { name: 'SMP', value: 'smp' }
                 ))
-        .addStringOption(option => 
-            option.setName('tier')
-                .setDescription('Tier (e.g. HT1, LT2, Tier 4)')
-                .setRequired(true)),
+        .addIntegerOption(option => 
+            option.setName('position')
+                .setDescription('Rank Position (e.g. 1, 2, 3)')
+                .setRequired(true)
+                .setMinValue(1)),
                 
     new SlashCommandBuilder()
         .setName('demote')
-        .setDescription('Demote a player to a lower Tier.')
+        .setDescription('Demote a player to a lower rank.')
         .addStringOption(option => 
             option.setName('ign')
                 .setDescription('The IGN to demote')
@@ -221,10 +224,11 @@ const commands = [
                     { name: 'Nethpot', value: 'nethop' },
                     { name: 'SMP', value: 'smp' }
                 ))
-        .addStringOption(option => 
-            option.setName('tier')
-                .setDescription('Tier (e.g. HT1, LT2, Tier 4)')
-                .setRequired(true)),
+        .addIntegerOption(option => 
+            option.setName('position')
+                .setDescription('Rank Position (e.g. 1, 2, 3)')
+                .setRequired(true)
+                .setMinValue(1)),
                 
     new SlashCommandBuilder()
         .setName('changeregion')
@@ -293,10 +297,11 @@ const commands = [
                     { name: 'Nethpot', value: 'nethop' },
                     { name: 'SMP', value: 'smp' }
                 ))
-        .addStringOption(option => 
-            option.setName('tier')
-                .setDescription('Tier (e.g. HT1, LT2, Tier 4)')
-                .setRequired(true)),
+        .addIntegerOption(option => 
+            option.setName('position')
+                .setDescription('Rank Position (e.g. 1, 2, 3)')
+                .setRequired(true)
+                .setMinValue(1)),
                 
     new SlashCommandBuilder()
         .setName('unpeak')

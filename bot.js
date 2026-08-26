@@ -48,7 +48,7 @@ function getTitle(points) {
     return 'Rookie';
 }
 
-const POSITION_POINTS = { 1: 10, 2: 7, 3: 5, 4: 3, 5: 1, 'HT1': 20, 'LT1': 15, 'HT2': 12, 'LT2': 10, 'HT3': 8, 'LT3': 6, 'HT4': 4, 'LT4': 2, 'HT5': 1, 'LT5': 0 };
+const POSITION_POINTS = { 1: 10, 2: 7, 3: 5, 4: 3, 5: 1 };
 
 
 // --- Auto-updating Leaderboard Panel Logic ---
@@ -85,20 +85,15 @@ async function updateLeaderboardPanel(client, db) {
         const embeds = [];
         
         for (const cat of categories) {
-            let catPlayers = players.filter(p => p.stats && p.stats[cat.id] && !String(p.stats[cat.id]).startsWith('r'));
+            let catPlayers = players.filter(p => p.stats && typeof p.stats[cat.id] === 'number');
             
             // Sort by points, then alphabetically
-            catPlayers.sort((a, b) => {
-                let ptsA = POSITION_POINTS[a.stats[cat.id]] || 0;
-                let ptsB = POSITION_POINTS[b.stats[cat.id]] || 0;
-                if (ptsA !== ptsB) return ptsB - ptsA;
-                return a.name.localeCompare(b.name);
-            });
+            catPlayers.sort((a, b) => a.stats[cat.id] - b.stats[cat.id]);
             
             let desc = '';
             for (let i = 0; i < 5; i++) {
                 if (i < catPlayers.length) {
-                    desc += `• **#${i+1} ${catPlayers[i].name}** - ${catPlayers[i].stats[cat.id]}\n`;
+                    desc += `• **#${catPlayers[i].stats[cat.id]} ${catPlayers[i].name}**\n`;
                 } else {
                     desc += `• **#${i+1} N/A**\n`;
                 }
@@ -122,7 +117,7 @@ async function updateLeaderboardPanel(client, db) {
 function getPlayerTotalPoints(player) {
     let total = 0;
     for (const [lb, rank] of Object.entries(player.stats || {})) {
-        if (typeof rank === 'number' && lb !== 'overall' && POSITION_POINTS[rank]) {
+        if (typeof rank === 'number' && lb !== 'overall' && POSITION_POINTS[rank] !== undefined) {
             total += POSITION_POINTS[rank];
         }
     }
@@ -185,7 +180,7 @@ async function buildLeaderboardMessage() {
 }
 
 client.on('interactionCreate', async interaction => {
-    const ADMIN_IDS = ['760539503211053057', '1406613103499677746', '1243137908613840958', '1299664877387911225'];
+    const ADMIN_IDS = ['760539503211053057', '1406613103499677746', '1243137908613840958', '1299664877387911225', '508747947765137415'];
     const ADMIN_ROLES = ['1493227708446937158', '1483019761091612815'];
     
     let hasAccess = false;
@@ -264,7 +259,7 @@ client.on('interactionCreate', async interaction => {
 
     if (commandName === 'peak') {
         const ign = options.getString('ign');
-        const tier = options.getString('tier');
+        const position = options.getInteger('position');
         const leaderboard = options.getString('leaderboard');
         
         await interaction.deferReply();
@@ -280,7 +275,7 @@ client.on('interactionCreate', async interaction => {
             let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
             if (playerIndex !== -1 && players[playerIndex].stats[leaderboard]) {
                 players[playerIndex].peaks = players[playerIndex].peaks || {};
-                players[playerIndex].peaks[leaderboard] = tier;
+                players[playerIndex].peaks[leaderboard] = position;
                 
                 await set(playersRef, players);
                 
@@ -288,12 +283,12 @@ client.on('interactionCreate', async interaction => {
                 const peakEmbed = new EmbedBuilder()
                     .setColor('#FF00FF')
                     .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
-                    .setTitle('🚀 Peak Tier Set')
-                    .setDescription(`**${ign}**'s peak tier in **${leaderboard.toUpperCase()}** is now set to **${tier}**.`)
+                    .setTitle('🚀 Peak Position Set')
+                    .setDescription(`**${ign}**'s peak position in **${leaderboard.toUpperCase()}** is now set to **#${position}**.`)
                     .setThumbnail(avatarUrl)
                     .addFields(
                         { name: 'Mode', value: `**${leaderboard.toUpperCase()}**`, inline: true },
-                        { name: 'Peak Tier', value: `**${tier}**`, inline: true }
+                        { name: 'Peak Position', value: `**#${position}**`, inline: true }
                     )
                     .setFooter({ text: 'Ascension Bot • System Update' })
                     .setTimestamp();
@@ -331,8 +326,8 @@ client.on('interactionCreate', async interaction => {
                 const unpeakEmbed = new EmbedBuilder()
                     .setColor('#FF00FF')
                     .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
-                    .setTitle('🗑️ Peak Tier Removed')
-                    .setDescription(`**${ign}**'s peak tier in **${leaderboard.toUpperCase()}** has been removed.`)
+                    .setTitle('🗑️ Peak Position Removed')
+                    .setDescription(`**${ign}**'s peak position in **${leaderboard.toUpperCase()}** has been removed.`)
                     .setThumbnail(avatarUrl)
                     .addFields(
                         { name: 'Mode', value: `**${leaderboard.toUpperCase()}**`, inline: true }
@@ -342,7 +337,7 @@ client.on('interactionCreate', async interaction => {
                     
                 interaction.editReply({ content: '', embeds: [unpeakEmbed] });
             } else {
-                interaction.editReply(`❌ Player **${ign}** does not have a peak tier in **${leaderboard}**.`);
+                interaction.editReply(`❌ Player **${ign}** does not have a peak position in **${leaderboard}**.`);
             }
         } catch (error) {
             interaction.editReply('❌ Database error.');
@@ -632,7 +627,7 @@ client.on('interactionCreate', async interaction => {
     if (commandName === 'add') {
         const ign = options.getString('ign');
         const leaderboard = options.getString('leaderboard');
-        const tier = options.getString('tier');
+        const position = options.getInteger('position');
         const region = options.getString('region') || 'AS'; // Default to AS if not provided
 
         if (ign.includes(',') || ign.includes(' ')) {
@@ -657,10 +652,10 @@ client.on('interactionCreate', async interaction => {
             
             let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
             if (playerIndex !== -1) {
-                players[playerIndex].stats[leaderboard] = tier;
+                players[playerIndex].stats[leaderboard] = position;
                 if (options.getString('region')) players[playerIndex].region = region;
             } else {
-                players.push({ name: ign, region: region, stats: { [leaderboard]: tier } });
+                players.push({ name: ign, region: region, stats: { [leaderboard]: position } });
             }
 
             await set(playersRef, players);
@@ -675,7 +670,7 @@ client.on('interactionCreate', async interaction => {
                     { name: 'IGN', value: `**${ign}**`, inline: true },
                     { name: 'Region', value: `${region}`, inline: true },
                     { name: 'Leaderboard', value: `**${leaderboard.toUpperCase()}**`, inline: true },
-                    { name: 'New Rank', value: `**${tier}**`, inline: true }
+                    { name: 'New Rank', value: `**#${position}**`, inline: true }
                 )
                 .setFooter({ text: 'Ascension Bot • System Update' })
                 .setTimestamp();
@@ -692,7 +687,7 @@ client.on('interactionCreate', async interaction => {
     if (commandName === 'addmulti') {
         const ignsRaw = options.getString('igns');
         const leaderboard = options.getString('leaderboard');
-        const tier = options.getString('tier');
+        const position = options.getInteger('position');
         const region = options.getString('region') || 'AS';
 
         const igns = ignsRaw.split(',').map(name => name.trim()).filter(name => name.length > 0);
@@ -722,11 +717,11 @@ client.on('interactionCreate', async interaction => {
             for (const ign of igns) {
                 let playerIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
                 if (playerIndex !== -1) {
-                    players[playerIndex].stats[leaderboard] = tier;
+                    players[playerIndex].stats[leaderboard] = position;
                     if (options.getString('region')) players[playerIndex].region = region;
                     updatedCount++;
                 } else {
-                    players.push({ name: ign, region: region, stats: { [leaderboard]: tier } });
+                    players.push({ name: ign, region: region, stats: { [leaderboard]: position } });
                     addedCount++;
                 }
             }
@@ -737,7 +732,7 @@ client.on('interactionCreate', async interaction => {
                 .setColor('#00FF00')
                 .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                 .setTitle(`✅ Successfully Processed ${igns.length} Players`)
-                .setDescription(`Leaderboard: **${leaderboard.toUpperCase()}**\nTier: **${tier}**\nRegion: **${region}**\n\nAdded: **${addedCount}**\nUpdated: **${updatedCount}**\n\nPlayers: \`${igns.join(', ')}\``)
+                .setDescription(`Leaderboard: **${leaderboard.toUpperCase()}**\nTier: **#${position}**\nRegion: **${region}**\n\nAdded: **${addedCount}**\nUpdated: **${updatedCount}**\n\nPlayers: \`${igns.join(', ')}\``)
                 .setFooter({ text: 'Ascension Bot • System Update' })
                 .setTimestamp();
                 
@@ -943,7 +938,7 @@ client.on('interactionCreate', async interaction => {
     if (commandName === 'promote') {
         const ign = options.getString('ign');
         const leaderboard = options.getString('leaderboard');
-        const tier = options.getString('tier');
+        const position = options.getInteger('position');
 
         await interaction.deferReply();
         try {
@@ -956,9 +951,9 @@ client.on('interactionCreate', async interaction => {
 
             let pIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
             if (pIndex !== -1) {
-                players[pIndex].stats[leaderboard] = tier;
+                players[pIndex].stats[leaderboard] = position;
             } else {
-                players.push({ name: ign, region: 'AS', stats: { [leaderboard]: tier } });
+                players.push({ name: ign, region: 'AS', stats: { [leaderboard]: position } });
             }
 
             await set(playersRef, players);
@@ -968,7 +963,7 @@ client.on('interactionCreate', async interaction => {
                 .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                 .setTitle('⬆️ Player Promoted')
                 .setThumbnail(avatarUrl)
-                .setDescription(`**\`${ign}\`** was PROMOTED to **${tier}** in **${leaderboard.toUpperCase()}**.`)
+                .setDescription(`**\`${ign}\`** was PROMOTED to **#${position}** in **${leaderboard.toUpperCase()}**.`)
                 .setFooter({ text: 'Ascension Bot • System Update' })
                 .setTimestamp();
             interaction.editReply({ content: '', embeds: [embed] });
@@ -980,7 +975,7 @@ client.on('interactionCreate', async interaction => {
     if (commandName === 'demote') {
         const ign = options.getString('ign');
         const leaderboard = options.getString('leaderboard');
-        const tier = options.getString('tier');
+        const position = options.getInteger('position');
 
         await interaction.deferReply();
         try {
@@ -993,9 +988,9 @@ client.on('interactionCreate', async interaction => {
 
             let pIndex = players.findIndex(p => p.name.toLowerCase() === ign.toLowerCase());
             if (pIndex !== -1) {
-                players[pIndex].stats[leaderboard] = tier;
+                players[pIndex].stats[leaderboard] = position;
             } else {
-                players.push({ name: ign, region: 'AS', stats: { [leaderboard]: tier } });
+                players.push({ name: ign, region: 'AS', stats: { [leaderboard]: position } });
             }
 
             await set(playersRef, players);
@@ -1005,7 +1000,7 @@ client.on('interactionCreate', async interaction => {
                 .setAuthor({ name: 'Ascension Leaderboard', iconURL: 'https://i.postimg.cc/j5B1nLhX/Silver-Arrow-Emblem-with-Wings-removebg-preview.png' })
                 .setTitle('⬇️ Player Demoted')
                 .setThumbnail(avatarUrl)
-                .setDescription(`**\`${ign}\`** was DEMOTED to **${tier}** in **${leaderboard.toUpperCase()}**.`)
+                .setDescription(`**\`${ign}\`** was DEMOTED to **#${position}** in **${leaderboard.toUpperCase()}**.`)
                 .setFooter({ text: 'Ascension Bot • System Update' })
                 .setTimestamp();
             interaction.editReply({ content: '', embeds: [embed] });
@@ -1133,9 +1128,9 @@ client.on('interactionCreate', async interaction => {
                 if (oRank !== null) oppCurrentRank = `#${oRank}`;
                 if (oppIndex !== -1 && players[oppIndex].region) oppRegion = players[oppIndex].region;
 
-                // Tiers are manually updated via /setrank, so we just display the current tiers
-                rankUpdateText = `(Use /setrank to update Tiers if needed)`;
-                oppRankUpdateText = `(Use /setrank to update Tiers if needed)`;
+                // Positions are manually updated via /setrank, so we just display the current tiers
+                rankUpdateText = `(Use /setrank to update positions if needed)`;
+                oppRankUpdateText = `(Use /setrank to update positions if needed)`;
             }
         } catch(e) {
             console.error('Database fetch error on /results', e);
